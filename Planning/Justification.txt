@@ -1,0 +1,13 @@
+4. Justification of platform/architecture
+
+- Thin Client
+Our project should still be running and updating the lights even if the webpage isn’t open. The webpage only serves as a portal (and audio player) to control the lighting, but because the lights need updating on a hardware level, it makes sense to do all the computation on the backend.
+
+-PHP
+Out of our options (JSP, Node, PHP, Flask, etc…) we thought that PHP would be the easiest platform for our group to collaboratively work on as PHP breaks each view into a different PHP file, so multiple users could work without worrying about conflicts in merging.
+
+-LAMP
+After choosing PHP, LAMP is a easy follow up as there are several tools that are built for this stack, and PHP falls into it well.
+
+-MySQL
+MySQL easily fits with PHP, and several of our group members are comfortable with relational DBs, so a SQL database is a solid choice.
