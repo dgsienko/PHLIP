@@ -7,8 +7,6 @@ import os
 import requests
 import json
 
-import lights as l
-import weather as w
 
 mysql = MySQL()
 app = Flask(__name__)
@@ -17,10 +15,10 @@ app.secret_key =
 key = config.weatherKey
 
 #These will need to be changed according to your creditionalsb
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = config.DBpass
-app.config['MYSQL_DATABASE_DB'] = 'group4'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_USER'] = config.dbUser
+app.config['MYSQL_DATABASE_PASSWORD'] = config.dbPass
+app.config['MYSQL_DATABASE_DB'] = config.dbName
+app.config['MYSQL_DATABASE_HOST'] = config.dbHost
 app.config['UPLOAD_FOLDER'] = 'static'
 mysql.init_app(app)
 
@@ -70,44 +68,65 @@ def weather_post():
 	return 'weather'
 
 
-
-def getLocation():
+def getLocations():
 	query = "select city,state from locations"
 	cursor = conn.cursor()
     cursor.execute(query)
+    return cursor.fetchall()
+
+def getUsersLocation(user_id):
+	query = "select lid from users where user_id = '{0}'"
+	cursor = conn.cursor()
+    cursor.execute(query.format(user_id))
     return cursor.fetchone()[0]
 
-def getMoon():
-	city, state = getLocation()
+def getLocation(lid):
+	query = "select city,state from locations where lid = '{0}'"
+	cursor = conn.cursor()
+    cursor.execute(query.format(lid))
+    return cursor.fetchone()[0]
+
+def location_exists(city,state):
+	query = "select * from locations where city='{0}' and state='{1}'"
+	cursor = conn.cursor()
+    cursor.execute(query.format(city,state))
+    return (cursor.rowcount > 0)
+
+def get_lid(city,state):
+	query = "select lid from locations where city='{0}' and state='{1}'"
+	cursor = conn.cursor()
+    cursor.execute(query.format(city,state))
+    return cursor.fetchone()[0]
+
+def getMoon(lid):
+	city,state = getLocation(lid)
 	req = requests.get("http://api.wunderground.com/api/" + key + "/astronomy/q/"  + state +  "/" + city + ".json").content
 	parsed = json.loads(req)
-	return [ parsed['moon_phase']['sunrise']['hour'], parsed['moon_phase']['sunrise']['minute'], parsed['moon_phase']['sunset']['hour'], parsed['moon_phase']['sunset']['minute'] ]
+	return [ parsed['moon_phase']['sunrise']['hour'], parsed['moon_phase']['sunrise']['minute'], parsed['moon_phase']['sunset']['hour'], parsed['moon_phase']['sunset']['minute'], lid ]
 
-def getTemp():
-	city, state = getLocation()
+def getTemp(lid):
+	city,state = getLocation(lid)
 	req = requests.get("http://api.wunderground.com/api/" + key + "/geolookup/conditions/q/"  + state +  "/" + city + ".json").content
 	parsed = json.loads(req)
 	return parsed['current_observation']['temp_f']
 
-def setMoon(sunriseH,sunriseM,sunsetH,sunsetM):
-	query1 = "delete from current_conditions"
-	query2 = "insert into current_conditions (sunrise_hour, sunrise_minute, sunset_hour, sunset_minute) VALUES ('{0}','{1}','{2}','{3}')"
-	
-
+def setMoon(sunriseH,sunriseM,sunsetH,sunsetM,lid):
+	query1 = "delete from current_conditions where lid='{0}'"
 	cursor = conn.cursor()
-    cursor.execute(query1)
+    cursor.execute(query1.format(lid))
     conn.commit()
 
-    cursor.execute(query1.format(getMoon()))
+    query2 = "insert into current_conditions (sunrise_hour, sunrise_minute, sunset_hour, sunset_minute,lid) VALUES ('{0}','{1}','{2}','{3}', '{4}')"
+    cursor.execute(query2.format(getMoon()))
     conn.commit()
 
-def setTemp(temp):
-	query = "update current_conditions set temp='{0}'"
+def setTemp(temp, lid):
+	query = "update current_conditions set temp='{0}' where lid='{1}'"
 	cursor = conn.cursor()
-    cursor.execute(query.format(temp))
+    cursor.execute(query.format(temp,lid))
     conn.commit()
 
-def create_alert(_):
+def create_alert():
 	return 1
 
 def run_alerts():
@@ -116,10 +135,17 @@ def run_alerts():
 def get_alerts():
 	return 1
 
-def create_location():
-	return 1
+
+def create_location(city,state):
+	query = "insert into locations (city,state) VALUES ('{0}','{1}')"
+	cursor = conn.cursor()
+    cursor.execute(query.format(city,state))
+    conn.commit()
 
 def create_lightEffect(type,length,color):
+	return 1
+
+def compare_date(dt,hour,minute):
 	return 1
 
 
