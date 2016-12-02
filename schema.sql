@@ -7,7 +7,8 @@ create table light_effects(
 	light_id int(5) primary key auto_increment not null,
 	light_type ENUM('flash','loop','on') not null,
 	light_color varchar(30),
-	light_length int(5) default 10
+	light_length int(5) default 10,
+	unique(light_type,light_color,light_length)
 );
 
 

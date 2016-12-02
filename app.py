@@ -96,7 +96,10 @@ def get_lid(city,state):
 	query = "select lid from locations where city='{0}' and state='{1}'"
 	cursor = conn.cursor()
     cursor.execute(query.format(city,state))
-    return cursor.fetchone()[0]
+    if (cursor.rowcount > 0)
+    	return cursor.fetchone()[0]
+    else:
+    	return -1
 
 def getMoon(lid):
 	city,state = getLocation(lid)
@@ -126,14 +129,22 @@ def setTemp(temp, lid):
     cursor.execute(query.format(temp,lid))
     conn.commit()
 
-def create_alert():
-	return 1
+def create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, length, color):
+	light_id = get_light_id(light_type,length, color)
+	if (light_id == -1):
+		create_lightEffect(light_type,length, color)
+		light_id = get_light_id(light_type,length, color)
+	query = "insert into alerts (user_id, light_id, alert_type, alert_sign, alert_temp) values ('{0}','{1}','{2}','{3}','{4}')"
+	cursor.execute(query.format(user_id,light_id,alert_type,alert_sign,alert_temp))
+	cursor.commit()
 
-def run_alerts():
+def run_alerts(alerts):
 	return 1
 
 def get_alerts():
-	return 1
+	query="select * from alerts"
+	cursor.execute(query)
+
 
 
 def create_location(city,state):
@@ -142,8 +153,20 @@ def create_location(city,state):
     cursor.execute(query.format(city,state))
     conn.commit()
 
-def create_lightEffect(type,length,color):
-	return 1
+def get_light_id(light_type,length,color):
+	query="select light_id from light_effects where light_type='{0}' and light_length='{1}' and light_color='{2}'"
+	cursor = conn.cursor()
+    cursor.execute(query.format(light_type,length,color))
+    if (cursor.rowcount > 0):
+    	return cursor.fetchone()[0]
+    else:
+    	return -1
+
+def create_lightEffect(light_type,length,color):
+	query="insert into light_effects (light_type, light_color, light_length) values ('{0}','{1}',{2})"
+	cursor = conn.cursor()
+    cursor.execute(query.format(light_type,length,color))
+    conn.commit()
 
 def compare_date(dt,hour,minute):
 	return 1
@@ -188,6 +211,36 @@ def music_post():
 
 
 
+
+# Use this to check if a email has already been registered
+def isEmailUnique(email):
+   cursor = conn.cursor()
+   if cursor.execute("SELECT email  FROM Users WHERE email = '{0}'".format(email)): 
+       # This means there are greater than zero entries with that email
+       return False
+   else:
+       return True
+
+@app.route("/register", methods=['POST'])
+def register_user():
+   try:
+       email=request.form.get('email')
+       password=request.form.get('password')
+       city=request.form.get('city')
+       state=request.form.get('state')
+   except:
+       print "couldn't find all tokens" # End users won't see this (print statements go to shell)
+       return flask.redirect(flask.url_for('register'))
+   if get_lid(city,state) == -1:
+       create_location(city,state)
+       get_lid(city,state)
+   else:
+       lid = get_lid(city,state)
+   cursor = conn.cursor()
+   test =  isEmailUnique(email)
+   if test:
+       print cursor.execute("INSERT INTO Users (email, password, lid) VALUES ('{0}', '{1}', '{2}')".format(email, password, lid))
+       conn.commit()
 
 
 
