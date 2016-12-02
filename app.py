@@ -1,6 +1,6 @@
 import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
-from flask.ext.mysql import MySQL
+from flaskext.mysql import MySQL
 import flask.ext.login as flask_login
 
 import os
@@ -10,7 +10,7 @@ import json
 
 mysql = MySQL()
 app = Flask(__name__)
-app.secret_key = 
+app.secret_key = config.secret_key
 
 key = config.weatherKey
 
@@ -68,66 +68,66 @@ def weather_post():
 	return 'weather'
 
 
-def getLocations():
+def get_locations():
 	query = "select city,state from locations"
 	cursor = conn.cursor()
-    cursor.execute(query)
-    return cursor.fetchall()
+	cursor.execute(query)
+	return cursor.fetchall()
 
-def getUsersLocation(user_id):
+def get_users_location(user_id):
 	query = "select lid from users where user_id = '{0}'"
 	cursor = conn.cursor()
-    cursor.execute(query.format(user_id))
-    return cursor.fetchone()[0]
+	cursor.execute(query.format(user_id))
+	return cursor.fetchone()[0]
 
-def getLocation(lid):
+def get_location(lid):
 	query = "select city,state from locations where lid = '{0}'"
 	cursor = conn.cursor()
-    cursor.execute(query.format(lid))
-    return cursor.fetchone()[0]
+	cursor.execute(query.format(lid))
+	return cursor.fetchone()[0]
 
 def location_exists(city,state):
 	query = "select * from locations where city='{0}' and state='{1}'"
 	cursor = conn.cursor()
-    cursor.execute(query.format(city,state))
-    return (cursor.rowcount > 0)
+	cursor.execute(query.format(city,state))
+	return (cursor.rowcount > 0)
 
 def get_lid(city,state):
 	query = "select lid from locations where city='{0}' and state='{1}'"
 	cursor = conn.cursor()
-    cursor.execute(query.format(city,state))
-    if (cursor.rowcount > 0)
-    	return cursor.fetchone()[0]
-    else:
-    	return -1
+	cursor.execute(query.format(city,state))
+	if (cursor.rowcount > 0):
+		return cursor.fetchone()[0]
+	else:
+		return -1
 
-def getMoon(lid):
+def get_moon(lid):
 	city,state = getLocation(lid)
 	req = requests.get("http://api.wunderground.com/api/" + key + "/astronomy/q/"  + state +  "/" + city + ".json").content
 	parsed = json.loads(req)
 	return [ parsed['moon_phase']['sunrise']['hour'], parsed['moon_phase']['sunrise']['minute'], parsed['moon_phase']['sunset']['hour'], parsed['moon_phase']['sunset']['minute'], lid ]
 
-def getTemp(lid):
+def get_temp(lid):
 	city,state = getLocation(lid)
 	req = requests.get("http://api.wunderground.com/api/" + key + "/geolookup/conditions/q/"  + state +  "/" + city + ".json").content
 	parsed = json.loads(req)
 	return parsed['current_observation']['temp_f']
 
-def setMoon(sunriseH,sunriseM,sunsetH,sunsetM,lid):
+def set_moon(sunriseH,sunriseM,sunsetH,sunsetM,lid):
 	query1 = "delete from current_conditions where lid='{0}'"
 	cursor = conn.cursor()
-    cursor.execute(query1.format(lid))
-    conn.commit()
+	cursor.execute(query1.format(lid))
+	conn.commit()
 
-    query2 = "insert into current_conditions (sunrise_hour, sunrise_minute, sunset_hour, sunset_minute,lid) VALUES ('{0}','{1}','{2}','{3}', '{4}')"
-    cursor.execute(query2.format(getMoon()))
-    conn.commit()
+	query2 = "insert into current_conditions (sunrise_hour, sunrise_minute, sunset_hour, sunset_minute,lid) VALUES ('{0}','{1}','{2}','{3}', '{4}')"
+	cursor.execute(query2.format(getMoon()))
+	conn.commit()
 
-def setTemp(temp, lid):
+def set_temp(temp, lid):
 	query = "update current_conditions set temp='{0}' where lid='{1}'"
 	cursor = conn.cursor()
-    cursor.execute(query.format(temp,lid))
-    conn.commit()
+	cursor.execute(query.format(temp,lid))
+	conn.commit()
 
 def create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, length, color):
 	light_id = get_light_id(light_type,length, color)
@@ -138,35 +138,41 @@ def create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, length
 	cursor.execute(query.format(user_id,light_id,alert_type,alert_sign,alert_temp))
 	cursor.commit()
 
-def run_alerts(alerts):
+def run_alerts():
 	return 1
+
+def run_once_a_day():
+	locations = get_locations()
+	for location in locations:
+		set_moon(get_moon(location[0],location[1]))
 
 def get_alerts():
 	query="select * from alerts"
 	cursor.execute(query)
+	return cursor.fetchall()
 
 
 
 def create_location(city,state):
 	query = "insert into locations (city,state) VALUES ('{0}','{1}')"
 	cursor = conn.cursor()
-    cursor.execute(query.format(city,state))
-    conn.commit()
+	cursor.execute(query.format(city,state))
+	conn.commit()
 
 def get_light_id(light_type,length,color):
 	query="select light_id from light_effects where light_type='{0}' and light_length='{1}' and light_color='{2}'"
 	cursor = conn.cursor()
-    cursor.execute(query.format(light_type,length,color))
-    if (cursor.rowcount > 0):
-    	return cursor.fetchone()[0]
-    else:
-    	return -1
+	cursor.execute(query.format(light_type,length,color))
+	if (cursor.rowcount > 0):
+		return cursor.fetchone()[0]
+	else:
+		return -1
 
 def create_lightEffect(light_type,length,color):
 	query="insert into light_effects (light_type, light_color, light_length) values ('{0}','{1}',{2})"
 	cursor = conn.cursor()
-    cursor.execute(query.format(light_type,length,color))
-    conn.commit()
+	cursor.execute(query.format(light_type,length,color))
+	conn.commit()
 
 def compare_date(dt,hour,minute):
 	return 1
