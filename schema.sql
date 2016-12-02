@@ -1,7 +1,24 @@
 create database group4;
 use group4;
 
+create table lights (
+	lamp_id int(5) primary key not null
+);
 
+create table groups (
+	group_id int(5) primary key not null auto_increment,
+	group_name varchar(30) not null,
+	unique(group_name)
+);
+
+create table light_groups(
+	group_id int(5) not null,
+	lamp_id int(5) not null,
+	primary key (group_id,lamp_id),
+	FOREIGN KEY (lamp_id) REFERENCES lights(lamp_id),
+	FOREIGN KEY (group_id) REFERENCES groups(group_id),
+
+);
 
 create table light_effects(
 	light_id int(5) primary key auto_increment not null,
