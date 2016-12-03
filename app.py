@@ -42,22 +42,21 @@ cursor = conn.cursor()
 
 
 
+# def print_date_time():
+# 	print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
+
+# scheduler = BackgroundScheduler()
+# scheduler.start()
+# scheduler.add_job(
+# 	func=print_date_time,
+# 	trigger=IntervalTrigger(seconds=5),
+# 	id='printing_job',
+# 	name='Print date and time every five seconds',
+# 	replace_existing=True)
+# # Shut down the scheduler when exiting the app
+# atexit.register(lambda: scheduler.shutdown())
 
 
-
-scheduler = BackgroundScheduler()
-scheduler.start()
-scheduler.add_job(
-    func=print_date_time,
-    trigger=IntervalTrigger(seconds=5),
-    id='printing_job',
-    name='Print date and time every five seconds',
-    replace_existing=True)
-# Shut down the scheduler when exiting the app
-atexit.register(lambda: scheduler.shutdown())
-
-def print_date_time():
-    print time.strftime("%A, %d. %B %Y %I:%M:%S %p")
 
 
 
@@ -72,12 +71,12 @@ def print_date_time():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+	return render_template('index.html')
 
 @app.route('/', methods=['POST'])
 def index_post():
-    l.flash('red')
-    return render_template('index.html')
+	l.flash('red')
+	return render_template('index.html')
 
 
 
@@ -191,28 +190,32 @@ def get_saved_condition(lid):
 	return cursor.fetchone()[0]
 
 def run_alerts(user_id):
-	# lid = get_users_location(user_id)
-	# condition_id,dt,_,sunrise_hour,sunrise_minute,sunset_hour,sunset_minute,current_temp = get_saved_condition(lid)
-	# newTemp = get_temp(lid)
+	lid = get_users_location(user_id)
+	condition_id,dt,_,sunrise_hour,sunrise_minute,sunset_hour,sunset_minute,current_temp = get_saved_condition(lid)
+	newTemp = get_temp(lid)
+	temp_alerts = get_temp_alerts()
+	for temp_alert in temp_alerts:
+		if (should_temp_rule(current_temp,newTemp,temp_alert[4],temp_alert[5])):
+			run_lights(temp_alert[1])
 
+
+	set_temp(newTemp,lid)
 	return 1
+
+def should_temp_rule(prev_temp, new_temp, rule_temp, rule_sign):
+	if(rule_sign == 1):
+		return (new_temp > rule_temp and prev_temp < rule_temp)
+	else:
+		return (new_temp < rule_temp and prev_temp > rule_temp)
+			
+
 
 def run_once_a_day():
 	locations = get_locations()
 	for location in locations:
 		set_moon(get_moon(location[0],location[1]))
 
-# def creat_temp_alert(user_id,light_id,alert_sign,alert_temp):
-# 	query="insert into alerts(user_id,light_id,alert_type,alert_sign,alert_temp) values('{0}','{1}','{2}','{3}','{4}')"
-# 	cursor = conn.cursor()
-# 	cursor.execute(query.format(user_id,light_id,'temp',alert_sign,alert_temp))
-# 	return 1
 
-# def creat_sun_alert(user_id,light_id,alert_sign):
-# 	query="insert into alerts(user_id,light_id,alert_type,alert_sign) values('{0}','{1}','{2}','{3}')"
-# 	cursor = conn.cursor()
-# 	cursor.execute(query.format(user_id,light_id,'sun',alert_sign,alert_temp))
-# 	return 1
 
 def should_sun_rule(lid):
 	_,dt,_,sunrise_hour,sunrise_minute,sunset_hour,sunset_minute,current_temp = get_saved_condition(lid)
@@ -345,42 +348,86 @@ def music_post():
 
 # Use this to check if a email has already been registered
 def isEmailUnique(email):
-   cursor = conn.cursor()
-   if cursor.execute("SELECT email  FROM Users WHERE email = '{0}'".format(email)): 
-       # This means there are greater than zero entries with that email
-       return False
-   else:
-       return True
+	cursor = conn.cursor()
+	if cursor.execute("SELECT email  FROM Users WHERE email = '{0}'".format(email)): 
+		# This means there are greater than zero entries with that email
+		return False
+	else:
+		return True
+#---#
+
+@app.route("/login", methods=['GET'])
+def login():
+	return render_template('register.html', supress='True')
+
+@app.route("/login", methods=['POST'])
+def login_post():
+	return render_template('register.html', supress='True')
+
+#---#
+
+@app.route("/home", methods=['GET'])
+def home():
+	return render_template('register.html', supress='True')
+
+
+#---#
+
+@app.route("/addrules", methods=['GET'])
+def addrules():
+	return render_template('register.html', supress='True')
+
+
+@app.route("/addrules", methods=['POST'])
+def addrules_post():
+	return render_template('register.html', supress='True')
+
+
+#---#
+
+@app.route("/music", methods=['GET'])
+def music():
+	return render_template('register.html', supress='True')
+
+
+@app.route("/music", methods=['POST'])
+def music_post():
+	return render_template('register.html', supress='True')
+
+#---#
+
+
 
 @app.route("/register", methods=['GET'])
 def register():
-   return render_template('register.html', supress='True')
-
+	return render_template('register.html', supress='True')
 
 @app.route("/register", methods=['POST'])
 def register_user():
-   try:
-       email=request.form.get('email')
-       password=request.form.get('password')
-       city=request.form.get('city')
-       state=request.form.get('state')
-   except:
-       print("couldn't find all tokens") # End users won't see this (print statements go to shell)
-       return flask.redirect(flask.url_for('register'))
-   if get_lid(city,state) == -1:
-       create_location(city,state)
-       get_lid(city,state)
-   else:
-       lid = get_lid(city,state)
-   cursor = conn.cursor()
-   test =  isEmailUnique(email)
-   if test:
-       print(cursor.execute("INSERT INTO Users (email, password, lid) VALUES ('{0}', '{1}', '{2}')".format(email, password, lid)))
-       conn.commit()
+	try:
+		email=request.form.get('email')
+		password=request.form.get('password')
+		city=request.form.get('city')
+		state=request.form.get('state')
+	except:
+		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
+		return flask.redirect(flask.url_for('register'))
+	if get_lid(city,state) == -1:
+		create_location(city,state)
+		get_lid(city,state)
+	else:
+		lid = get_lid(city,state)
+	cursor = conn.cursor()
+	test =  isEmailUnique(email)
+	if test:
+		print(cursor.execute("INSERT INTO Users (email, password, lid) VALUES ('{0}', '{1}', '{2}')".format(email, password, lid)))
+		conn.commit()
+		return redirect('/')
+	return redirect('/register')
 
 
 
-
+#---#
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+	app.run(debug=True, host='0.0.0.0')
