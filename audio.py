@@ -66,7 +66,7 @@ def wav_analyzer(fname,threshold):
     #converst to 64 bit float
     convert_16_bit = float(2**15)
     #takes abs value and constrains within 0,1
-    signal = abs(signal / (convert_16_bit + 1.0))  
+    signal = abs(signal / (convert_16_bit + 1.0)) 
     
     #if first value is not zero, add to plan
     plan = []
@@ -75,11 +75,12 @@ def wav_analyzer(fname,threshold):
      
     #creates plan for lights/list of index values in samples
     for i in range(1,len(signal)):
-        if ((signal[i] - signal[i-1]) / signal[i-1]) == (threshold/100):
+        if ((signal[i] - signal[i-1]) / signal[i-1]) * 100 == 70:
             plan += [i]
             
     #convert list values to seconds
     plan_sec = [plan[i]/44100 for i in range(0,len(plan))]
-
+    
     return plan_sec
+    
     
