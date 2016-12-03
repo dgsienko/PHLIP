@@ -41,6 +41,39 @@ conn = mysql.connect()
 cursor = conn.cursor()
 
 
+def getUserList():
+    cursor = conn.cursor()
+    cursor.execute("SELECT email from users") 
+    return cursor.fetchall()
+
+class User(flask_login.UserMixin):
+    pass
+
+@login_manager.user_loader
+def user_loader(email):
+    users = getUserList()
+    if not(email) or email not in str(users):
+        return
+    user = User()
+    user.id = email
+    return user
+
+@login_manager.request_loader
+def request_loader(request):
+    users = getUserList()
+    email = request.form.get('email')
+    if not(email) or email not in str(users):
+        return
+    user = User()
+    user.id = email
+    cursor = mysql.connect().cursor()
+    cursor.execute("SELECT password FROM user WHERE email = '{0}'".format(email))
+    data = cursor.fetchall()
+    pwd = str(data[0][0] )
+    user.is_authenticated = request.form['password'] == pwd 
+    return user
+
+
 
 # def print_date_time():
 # 	print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
@@ -68,41 +101,6 @@ cursor = conn.cursor()
 
 
 
-
-@app.route('/')
-def index():
-	return render_template('index.html')
-
-@app.route('/', methods=['POST'])
-def index_post():
-	l.flash('red')
-	return render_template('index.html')
-
-
-
-
-'''
-weather
-	create rule
-		each rule has lighting effect (color, effect duration)
-	sunrise/sunset
-		make 1 api call a day and then schedule something to happen then
-	temp above/below
-		specify temp and above or below
-	forecast for today/tomorrow
-		specify today or tomorrow,
-		specify which weather effect
-		specify time when will run
-'''
-@app.route('/weather',methods=['GET'])
-def weather_get():
-
-	return 'weather'
-
-@app.route('/weather',methods=['POST'])
-def weather_post():
-
-	return 'weather'
 
 
 def get_locations():
@@ -307,42 +305,7 @@ def within_range_after(range_after,curr_hr,curr_min,new_hr,new_min):
 
 
 
-'''
-setup
-	register user
-		username
-		password
-		location (city/state)
-	register hue bridge
-		find the bridge
-		tell user to press button on bridge
-'''
-@app.route('/setup',methods=['GET'])
-def setup_get():
-
-	return 'setup'
-
-@app.route('/setup',methods=['POST'])
-def setup_post():
-
-	return 'setup'
-
-
-
     
-
-# play music
-@app.route('/music',methods=['GET'])
-def music_get():
-
-	return 'music'
-
-@app.route('/music',methods=['POST'])
-def music_post():
-
-	return 'music'
-
-
 
 
 
@@ -354,48 +317,100 @@ def isEmailUnique(email):
 		return False
 	else:
 		return True
+
+
+#---#
+
+@app.route('/')
+def index():
+	return render_template('index.html')
+
+@app.route('/', methods=['POST'])
+def index_post():
+	l.flash('red')
+	return render_template('index.html')
+
+#---#
+
+@app.route('/weather',methods=['GET'])
+def weather_get():
+
+	return 'weather'
+
+@app.route('/weather',methods=['POST'])
+def weather_post():
+
+	return 'weather'
+
 #---#
 
 @app.route("/login", methods=['GET'])
 def login():
-	return render_template('register.html', supress='True')
+	return render_template('login.html', supress='True')
 
 @app.route("/login", methods=['POST'])
 def login_post():
-	return render_template('register.html', supress='True')
+	return render_template('login.html', supress='True')
 
 #---#
 
+
 @app.route("/home", methods=['GET'])
+@flask_login.login_required
 def home():
-	return render_template('register.html', supress='True')
+	return render_template('home.html', supress='True')
+
+
+#---#
+
+@app.route("/logout", methods=['GET'])
+def logout():
+	flask_login.logout_user()
+	return redirect('/')
 
 
 #---#
 
 @app.route("/addrules", methods=['GET'])
+@flask_login.login_required
 def addrules():
-	return render_template('register.html', supress='True')
+	return render_template('addrules.html')
 
 
 @app.route("/addrules", methods=['POST'])
+@flask_login.login_required
 def addrules_post():
-	return render_template('register.html', supress='True')
+	return render_template('addrules.html')
+
+
+#---#
+
+@app.route("/setup", methods=['GET'])
+@flask_login.login_required
+def setup():
+	return render_template('setup.html')
+
+
+@app.route("/setup", methods=['POST'])
+@flask_login.login_required
+def setup_post():
+	return render_template('setup.html')
 
 
 #---#
 
 @app.route("/music", methods=['GET'])
+@flask_login.login_required
 def music():
-	return render_template('register.html', supress='True')
+	return render_template('music.html')
 
 
 @app.route("/music", methods=['POST'])
+@flask_login.login_required
 def music_post():
-	return render_template('register.html', supress='True')
+	return render_template('music.html')
 
 #---#
-
 
 
 @app.route("/register", methods=['GET'])
