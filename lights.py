@@ -3,6 +3,15 @@ import time
 
 
 
+def reset():
+	os.system('hue lights reset')
+	return 1
+
+def setColor(color):
+	os.system('hue lights all ' + color.lower())
+	return 1
+
+
 def flash(color):
 	setColor(color)
 	os.system('hue lights all alert')
@@ -17,14 +26,6 @@ def onDuration(color,sec):
 		time.sleep(sec)
 		reset()
 		return 1
-
-def reset():
-	os.system('hue lights reset')
-	return 1
-
-def setColor(color):
-	os.system('hue lights all ' + color.lower())
-	return 1
 
 def cycleDuration(color, sec):
 	setColor(color)

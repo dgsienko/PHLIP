@@ -9,8 +9,14 @@ import json
 import datetime
 
 import lights as l
-
 import config
+
+
+import time
+import atexit
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 
 mysql = MySQL()
@@ -33,6 +39,33 @@ login_manager.init_app(app)
 
 conn = mysql.connect()
 cursor = conn.cursor()
+
+
+
+
+
+
+scheduler = BackgroundScheduler()
+scheduler.start()
+scheduler.add_job(
+    func=print_date_time,
+    trigger=IntervalTrigger(seconds=5),
+    id='printing_job',
+    name='Print date and time every five seconds',
+    replace_existing=True)
+# Shut down the scheduler when exiting the app
+atexit.register(lambda: scheduler.shutdown())
+
+def print_date_time():
+    print time.strftime("%A, %d. %B %Y %I:%M:%S %p")
+
+
+
+
+
+
+
+
 
 
 
@@ -195,7 +228,9 @@ def should_sun_rule(lid):
 def run_sun_rule(sign):
 	if(sign != 1 or sign != -1):
 		return -1
-	
+	_,light_id,user_id,alert_type,alert_sign,alert_temp = get_sun_alerts(sign)
+	if(should_sun_rule(get_users_location(user_id))):
+		run_lights(light_id)
 	
 def run_lights(light_id):
 	_,light_type,color,length = get_light_effect(light_id)
@@ -218,11 +253,11 @@ def get_alerts():
 	cursor.execute(query)
 	return cursor.fetchall()
 
-def get_sun_alerts(sign):
-	query="select * from alerts where alert_type='sun' and sign='{0}'"
+def get_sun_alert(sign):
+	query="select * from alerts where alert_type='sun' and sign='{0}' LIMIT 1"
 	cursor = conn.cursor()
 	cursor.execute(query.format(sign))
-	return cursor.fetchall()
+	return cursor.fetchone()[0]
 
 def get_temp_alerts():
 	query="select * from alerts where alert_type='temp'"

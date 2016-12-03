@@ -54,9 +54,13 @@ create table alerts (
 	alert_type ENUM('sun','temp') not null,
 	alert_sign int(1) default 1 not null,
 	alert_temp int(1) default 0,
+	unique(alert_type,alert_sign,alert_temp)
 	FOREIGN KEY (light_id) REFERENCES light_effects(light_id),
 	FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+
+
+# alert_id,light_id,user_id,alert_type,alert_sign,alert_temp
 
 
 create table current_conditions(
