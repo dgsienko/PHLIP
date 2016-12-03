@@ -8,7 +8,7 @@ def reset():
 	return 1
 
 def setColor(color):
-	os.system('hue lights all ' + color.lower())
+	os.system('hue lights all ' + str(color).lower())
 	return 1
 
 
