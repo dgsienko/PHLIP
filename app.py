@@ -42,36 +42,36 @@ cursor = conn.cursor()
 
 
 def getUserList():
-    cursor = conn.cursor()
-    cursor.execute("SELECT email from users") 
-    return cursor.fetchall()
+	cursor = conn.cursor()
+	cursor.execute("SELECT email from users") 
+	return cursor.fetchall()
 
 class User(flask_login.UserMixin):
-    pass
+	pass
 
 @login_manager.user_loader
 def user_loader(email):
-    users = getUserList()
-    if not(email) or email not in str(users):
-        return
-    user = User()
-    user.id = email
-    return user
+	users = getUserList()
+	if not(email) or email not in str(users):
+		return
+	user = User()
+	user.id = email
+	return user
 
 @login_manager.request_loader
 def request_loader(request):
-    users = getUserList()
-    email = request.form.get('email')
-    if not(email) or email not in str(users):
-        return
-    user = User()
-    user.id = email
-    cursor = mysql.connect().cursor()
-    cursor.execute("SELECT password FROM user WHERE email = '{0}'".format(email))
-    data = cursor.fetchall()
-    pwd = str(data[0][0] )
-    user.is_authenticated = request.form['password'] == pwd 
-    return user
+	users = getUserList()
+	email = request.form.get('email')
+	if not(email) or email not in str(users):
+		return
+	user = User()
+	user.id = email
+	cursor = mysql.connect().cursor()
+	cursor.execute("SELECT password FROM user WHERE email = '{0}'".format(email))
+	data = cursor.fetchall()
+	pwd = str(data[0][0] )
+	user.is_authenticated = request.form['password'] == pwd 
+	return user
 
 
 
@@ -318,17 +318,23 @@ def isEmailUnique(email):
 	else:
 		return True
 
+def getUserIdFromEmail(email):
+	cursor = conn.cursor()
+	cursor.execute("SELECT uid FROM users WHERE email = '{0}'".format(email))
+	if(cursor.rowcount > 0):
+		return cursor.fetchone()[0]
+	else:
+		return -1
+
 
 #---#
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
-	return render_template('index.html')
-
-@app.route('/', methods=['POST'])
-def index_post():
-	l.flash('red')
-	return render_template('index.html')
+	if(flask_login.current_user.is_anonymous):
+		return render_template('index.html')
+	else:
+		return '''logged in.'''
 
 #---#
 
@@ -346,10 +352,27 @@ def weather_post():
 
 @app.route("/login", methods=['GET'])
 def login():
-	return render_template('login.html', supress='True')
+	return render_template('login.html')  
+    
 
 @app.route("/login", methods=['POST'])
 def login_post():
+	#The request method is POST (page is recieving data)
+	email = flask.request.form['email']
+	cursor = conn.cursor()     #check if email is registered     
+	if cursor.execute("SELECT password FROM users WHERE email = '{0}'".format(email)):
+		data = cursor.fetchall()
+		print (data)
+		pwd = str(data[0][0] )
+		if flask.request.form['password'] == pwd:
+			user = User()
+			user.id = email
+			flask_login.login_user(user) #okay login in user
+			return flask.redirect('/home') #protected is a function defined in this file
+
+	#information did not match
+	return "<a href='/login'>Try again</a>\
+	</br><a href='/register'>or make an account</a>"
 	return render_template('login.html', supress='True')
 
 #---#
@@ -358,7 +381,7 @@ def login_post():
 @app.route("/home", methods=['GET'])
 @flask_login.login_required
 def home():
-	return render_template('home.html', supress='True')
+	return render_template('home.html', alert=get_alerts())
 
 
 #---#
@@ -374,7 +397,7 @@ def logout():
 @app.route("/addrules", methods=['GET'])
 @flask_login.login_required
 def addrules():
-	return render_template('addrules.html')
+	return render_template('alerts.html', alert=get_alerts())
 
 
 @app.route("/addrules", methods=['POST'])
@@ -427,19 +450,24 @@ def register_user():
 	except:
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
-	if get_lid(city,state) == -1:
+	lid = get_lid(city,state)
+	if lid == -1:
 		create_location(city,state)
-		get_lid(city,state)
-	else:
 		lid = get_lid(city,state)
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
 		print(cursor.execute("INSERT INTO Users (email, password, lid) VALUES ('{0}', '{1}', '{2}')".format(email, password, lid)))
 		conn.commit()
+		user = User()
+		user.id = email
+		flask_login.login_user(user)
 		return redirect('/')
 	return redirect('/register')
 
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return '''unauth.'''
 
 
 #---#
