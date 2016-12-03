@@ -83,4 +83,28 @@ def wav_analyzer(fname,threshold):
     
     return plan_sec
     
+def playSong(fname):
+    #plays song given filename
+    
+    chunk = 1024
+    wf = wave.open(fname, 'rb')
+    p = pyaudio.PyAudio()
+
+    #opens stream
+    stream = p.open(
+        format = p.get_format_from_width(wf.getsampwidth()),
+        channels = wf.getnchannels(),
+        rate = wf.getframerate(),
+        output = True)
+    data = wf.readframes(chunk)
+
+    #plays sogn 
+    while data != '': 
+        stream.write(data)
+        data = wf.readframes(chunk)
+
+    #closes stream
+    stream.close()
+    p.terminate()
+    
     
