@@ -4,13 +4,21 @@ import time
 
 
 def flash(color):
-	os.system('hue lights all ' + color.lower())
+	setColor(color)
 	os.system('hue lights all alert')
 	return 1
 
 def onDuration(color,sec):
-	os.system('hue lights all ' + color.lower())
-	time.sleep(sec)
+	if(sec == -1):
+		setColor(color)
+		return 1
+	else:
+		setColor(color)
+		time.sleep(sec)
+		reset()
+		return 1
+
+def reset():
 	os.system('hue lights reset')
 	return 1
 
@@ -18,11 +26,16 @@ def setColor(color):
 	os.system('hue lights all ' + color.lower())
 	return 1
 
-def cycleDuration(sec):
+def cycleDuration(color, sec):
+	setColor(color)
 	os.system('hue lights all colorloop')
 	time.sleep(sec)
-	os.system('hue lights reset')
+	reset()
 	return 1
+
+
+
+
 
 
 # https://pythonjunkie.wordpress.com/2012/07/19/convert-hex-color-values-to-rgb-in-python/
