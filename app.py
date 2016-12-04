@@ -19,6 +19,12 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 
+
+'''
+	<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='alerts.js') }}"></script>
+'''
+
 mysql = MySQL()
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -171,15 +177,31 @@ def set_temp(temp, lid):
 	conn.commit()
 
 
+def get_alert(alert_type,alert_sign,alert_temp):
+	query = "select alert_id from alerts where alert_type = '{0}' and alert_sign='{1}' and alert_temp='{2}'"
+	cursor = conn.cursor()
+	cursor.execute(query.format(alert_type,alert_sign,alert_temp))
+	if (cursor.rowcount > 0):
+		return cursor.fetchone()[0]
+	else:
+		return -1
 
 def create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, length, color):
 	light_id = get_light_id(light_type,length, color)
 	if (light_id == -1):
 		create_lightEffect(light_type,length, color)
 		light_id = get_light_id(light_type,length, color)
-	query = "insert into alerts (user_id, light_id, alert_type, alert_sign, alert_temp) values ('{0}','{1}','{2}','{3}','{4}')"
-	cursor.execute(query.format(user_id,light_id,alert_type,alert_sign,alert_temp))
-	cursor.commit()
+	alert_id = get_alert(alert_type, alert_sign, alert_temp)
+	if(alert_id == -1):
+		query = "insert into alerts (user_id, light_id, alert_type, alert_sign, alert_temp) values ('{0}','{1}','{2}','{3}','{4}')"
+		cursor = conn.cursor()
+		cursor.execute(query.format(user_id,light_id,alert_type,alert_sign,alert_temp))
+		cursor.commit()
+	else:
+		query = "update alerts set light_id='{0}', user_id='{1}' where alert_id='{2}'"
+		cursor = conn.cursor()
+		cursor.execute(query.format(light_id,user_id,alert_id))
+		cursor.commit()
 
 def get_saved_condition(lid):
 	query = "select * from locations where lid = '{0}'"
@@ -403,7 +425,55 @@ def addrules():
 @app.route("/addrules", methods=['POST'])
 @flask_login.login_required
 def addrules_post():
-	return render_template('addrules.html')
+	try:
+		alert_type=request.form.get('alert_type') # sun or temp
+		alert_sign = ''
+		light_type = 0
+		light_type= ''
+		dur= ''
+		color= ''
+		user_id = getUserIdFromEmail(flask_login.current_user.id)
+
+		if(alert_type == 'sun'):
+			alert_sign=int(request.form.get('tempdrop')) # 1, -1
+			alert_temp=int(request.form.get('tempval')) # string of number
+			light_type=request.form.get('tempeffect') # flash loop on
+			dur=int(request.form.get('tempduration')) # string of number
+			color = request.form.get('tempcolor') # string
+
+			create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
+
+		elif(alert_type == 'temp'):
+			alert_sign=int(request.form.get('sundrop')) # 1, -1
+			light_type=request.form.get('suneffect') # flash loop on
+			dur=int(request.form.get('sunduration')) # string of number
+			color = request.form.get('suncolor') # string
+
+			create_alert(user_id, alert_type, alert_sign, 0, light_type, dur, color)
+		else:
+			return redirect('/addrules', message='Bad Values!')
+
+		
+
+
+		
+	except:
+		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
+		return flask.redirect('/addrules')
+	lid = get_lid(city,state)
+	if lid == -1:
+		create_location(city,state)
+		lid = get_lid(city,state)
+	cursor = conn.cursor()
+	test =  isEmailUnique(email)
+	if test:
+		print(cursor.execute("INSERT INTO Users (email, password, lid) VALUES ('{0}', '{1}', '{2}')".format(email, password, lid)))
+		conn.commit()
+		user = User()
+		user.id = email
+		flask_login.login_user(user)
+		return redirect('/addrules')
+	return redirect('/addrules')
 
 
 #---#

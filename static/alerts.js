@@ -1,38 +1,80 @@
 $(document).ready(function() {
-	$('#tempsub').hide(); 
-	$('#sundiv').hide(); 
+	$('#sunif').hide(); 
+	$('#sundo').hide();
+	$('#suncol').hide();
+	$('#sunfor').hide();
+	$('#sunalert').hide();
+	$('#sunsub').hide();
 	$('#tempif').hide(); 
-	$('#tempdo').hide(); 
+	$('#tempdo').hide();
+	$('#tempcol').hide(); 
 	$('#tempfor').hide();
-	$('#alertbox').hide(); 
-	
+	$('#tempalert').hide(); 
+	$('#tempsub').hide(); 
 	
 	$('input[type="radio"]').click(function() {
-		
 		 if($(this).attr('id') == 'sunid') {
-				$('#sundiv').show(); 
 				$('#tempif').hide(); 
 				$('#tempdo').hide(); 
+				$('#tempcol').hide();
 				$('#tempfor').hide();
-				$('#alertbox').hide();	
-				$('#tempsub').hide();            
+				$('#tempalert').hide(); 
+				$('#tempsub').hide(); 
+				
+				$('#sunif').show(); 
+				$('#sundo').show();
+				$('#suncol').show();
+				$('#sunalert').show();
+				$('#sunsub').show(); 
+				$('#suneffect').change(function() {
+					if($(this).val() == 'flash') {
+						$('#suncol').show();
+						$('#sunalert').show();
+						$('#sunfor').hide();
+					}
+					else if($(this).val() == 'on') {
+						$('#suncol').show();
+						$('#sunalert').hide();
+						$('#sunfor').show();
+					}
+					else {
+						$('#suncol').hide();
+						$('#sunfor').show();
+						$('#sunalert').hide();
+					}
+				});
+				     
 		 }
 		 if($(this).attr('id') == 'tempid') {
+				$('#sunif').hide();
+				$('#sundo').hide();
+				$('#suncol').hide();
+				$('#sunfor').hide();
+				$('#sunalert').hide();
+				$('#sunsub').hide();
+
 				$('#tempif').show();   
-				$('#sundiv').hide();
 				$('input[name="tempval"]').keyup(function(){
 					if($(this).val().length) {
+						$('#tempcol').show();
 						$('#tempdo').show();
-						$('#alertbox').show();
+						$('#tempalert').show();
 						$('#tempsub').show();  						
-						$('#effectdrop').change(function(){
-							if($(this).val() == 'alert') {
-								$('#alertbox').show();
+						$('#tempeffect').change(function(){
+							if($(this).val() == 'flash') {
+								$('#tempcol').show();
+								$('#tempalert').show();
 								$('#tempfor').hide();
 							}
-							else {
+							else if($(this).val() == 'on') {
+								$('#tempcol').show();
+								$('#tempalert').hide();
 								$('#tempfor').show();
-								$('#alertbox').hide();
+							}
+							else {
+								$('#tempcol').hide();
+								$('#tempfor').show();
+								$('#tempalert').hide();
 							}
 						});
 					}
