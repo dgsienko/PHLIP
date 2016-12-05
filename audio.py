@@ -5,6 +5,15 @@ from pydub import AudioSegment
 import array
 import numpy as np
 import scipy.io.wavfile
+import pyaudio
+import wave
+import time
+from multiprocessing import Process
+import random
+
+
+#fname = "Jekk - First.wav"
+#threshold = 60
 
 def get_song_list(cid,artist_name):
     #gets list of songs from input artist
@@ -50,23 +59,21 @@ def get_song():
     with open(fname, 'wb') as f:
         f.write(content)
         
-def mp3_to_wav(in_fname,out_fname):
+def mp3_to_wav(in_fname):
     #converts mp3 to wav file
     
     #convert to wav
     sound = AudioSegment.from_mp3(in_fname)
-    sound.export(out_fname, format="wav")  
+    sound.export(in_fname[:-3] + "wav", format="wav")  
     
-def wav_analyzer(fname,threshold):
+def wav_analyzer(fname):
     #audio analyzer
     
     #reads in wav file given filename
     rate, data = scipy.io.wavfile.read(fname)
     signal = data[:,0]
-    #converst to 64 bit float
-    convert_16_bit = float(2**15)
-    #takes abs value and constrains within 0,1
-    signal = abs(signal / (convert_16_bit + 1.0)) 
+    convert_to_16 = float(2**15)
+    signal = abs(signal/(float(2**15)+1.0))
     
     #if first value is not zero, add to plan
     plan = []
@@ -80,17 +87,27 @@ def wav_analyzer(fname,threshold):
             
     #convert list values to seconds
     plan_sec = [plan[i]/44100 for i in range(0,len(plan))]
-    
+    #print(len(plan_sec))
     return plan_sec
-    
-def playSong(fname):
-    #plays song given filename
+
+def randomHex():
+    hexVal = ["0000FF","FF0000","800080","00FFEC","00EA00"]
+    choice = random.choice(hexVal)
+    return choice
+
+def setColor(plan_sec):
+    for i in range(1,len(plan_sec)):
+        #os.system('hue lights all ' + randomHex())
+        print(randomHex())
+        time.sleep(plan_sec[i]-plan_sec[i-1])
+
+def play_song(fname):
+    #plays song
     
     chunk = 1024
     wf = wave.open(fname, 'rb')
     p = pyaudio.PyAudio()
 
-    #opens stream
     stream = p.open(
         format = p.get_format_from_width(wf.getsampwidth()),
         channels = wf.getnchannels(),
@@ -98,13 +115,19 @@ def playSong(fname):
         output = True)
     data = wf.readframes(chunk)
 
-    #plays sogn 
     while data != '': 
         stream.write(data)
         data = wf.readframes(chunk)
 
-    #closes stream
     stream.close()
     p.terminate()
     
-    
+def mainRun(fname):
+    plan_sec = wav_analyzer(fname)
+
+    p2 = Process(target=setColor(plan_sec))
+    p1 = Process(target=play_song(fname))
+    p1.start()
+    p2.start()
+    p1.join()
+    p2.join()
