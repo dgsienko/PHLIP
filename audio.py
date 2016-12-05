@@ -2,7 +2,6 @@
 
 import requests
 from pydub import AudioSegment
-import array
 import numpy as np
 import scipy.io.wavfile
 import pyaudio
