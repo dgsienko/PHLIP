@@ -1,5 +1,6 @@
 #Audio Import and Analysis
 
+import lights
 import requests
 from pydub import AudioSegment
 import numpy as np
@@ -89,17 +90,6 @@ def wav_analyzer(fname):
     #print(len(plan_sec))
     return plan_sec
 
-def randomHex():
-    hexVal = ["0000FF","FF0000","800080","00FFEC","00EA00"]
-    choice = random.choice(hexVal)
-    return choice
-
-def setColor(plan_sec):
-    for i in range(1,len(plan_sec)):
-        #os.system('hue lights all ' + randomHex())
-        print(randomHex())
-        time.sleep(plan_sec[i]-plan_sec[i-1])
-
 def play_song(fname,song_ready,color_ready):
     #plays song
     
@@ -133,6 +123,6 @@ def mainRun(fname):
     songProcess = multiprocessing.Process(target=play_song,args = (fname, song_ready, color_ready))
     songProcess.start()
     
-    setColor(plan_sec,color_ready,song_ready)
+    setColor_v2(plan_sec,color_ready,song_ready)
 
 
