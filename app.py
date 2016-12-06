@@ -322,7 +322,7 @@ def get_temp_alerts():
 def create_location(city,state):
 	query = "insert into locations (city,state) VALUES ('{0}','{1}')"
 	cursor = conn.cursor()
-	cursor.execute(query.format(city,state))
+	cursor.execute(query.format(city.upper(),state.upper()))
 	conn.commit()
 
 def get_light_id(light_type,length,color):
@@ -356,8 +356,17 @@ def within_range_after(range_after,curr_hr,curr_min,new_hr,new_min):
 		return False
 
 
+def exists_users():
+	query="select * from users"
+	cursor=conn.cursor()
+	cursor.execute(query)
+	return (cursor.rowcount > 0)
 
-    
+
+def get_settings(keyword):
+	
+
+	
 
 
 
@@ -385,26 +394,27 @@ def delete_alert(alert_id):
 	conn.commit()
 
 
+
+
+
+
+
+#
+#
+# different routes
+#
+#
+
 #---#
 
 @app.route('/', methods=['GET'])
 def index():
-	if(flask_login.current_user.is_anonymous):
-		return render_template('index.html')
+	if(not(exists_users())):
+		return redirect('/register')
+	elif(flask_login.current_user.is_anonymous):
+		return redirect('/login')
 	else:
-		return '''logged in.'''
-
-#---#
-
-@app.route('/weather',methods=['GET'])
-def weather_get():
-
-	return 'weather'
-
-@app.route('/weather',methods=['POST'])
-def weather_post():
-
-	return 'weather'
+		return redirect('/home')
 
 #---#
 

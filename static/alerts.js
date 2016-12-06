@@ -90,8 +90,13 @@ $(document).ready(function() {
 							}
 						});
 					}
-					 else
+					 else {
 						$('#tempdo').hide();
+						$('#tempcol').hide();
+						$('#tempalert').hide();
+						$('#tempsub').hide(); 
+						$('#temptest').hide();
+					}
 				}); 
 				$( "#temptest" ).click(function() {
 					testcolor = $( "#tempcolor" ).val();

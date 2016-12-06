@@ -1,3 +1,5 @@
+drop database group4;
+
 create database group4;
 use group4;
 
@@ -40,8 +42,6 @@ create table users(
 	email varchar(50) not null,
 	password varchar(50) not null,
 	unique(email),
-	lid int(5),
-	FOREIGN KEY (lid) REFERENCES locations(lid)
 );
 
 create table alerts (
@@ -67,3 +67,20 @@ create table current_conditions(
 	current_temp int(3),
 	FOREIGN KEY (lid) REFERENCES locations(lid)
 );
+
+
+create table settings (
+	setting_id int(5) primary key auto_increment,
+	update_speed int(5),
+	new_users int(1) defaut 1,
+	weather_key varchar(100),
+	music_key varchar(100)
+	lid int(5),
+	FOREIGN KEY (lid) REFERENCES locations(lid)
+);
+
+insert into locations(city,state) values('BOSTON','MA');
+insert into settings(update_speed,weather_key,music_key,lid) values(5,'weather_key','music_key',1);
+
+
+

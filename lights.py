@@ -16,18 +16,18 @@ def setColor(color):
 
 def setColor_v2(plan_sec,color_ready,song_ready):
 	color_ready.set() 
-    	song_ready.wait()
-    	for i in range(1,len(plan_sec)):
-       		#os.system('hue lights all ' + randomHex())
-        	print(randomHex())
-        	time.sleep(plan_sec[i]-plan_sec[i-1])
+	song_ready.wait()
+	for i in range(1,len(plan_sec)):
+		#os.system('hue lights all ' + randomHex())
+		print(randomHex())
+		time.sleep(plan_sec[i]-plan_sec[i-1])
 
 
 def flash(color):
 	setColor(color)
 	os.system('hue lights all alert')
 	print('flashing lights')
-	time.sleep(30)
+	time.sleep(15)
 	reset()
 	return 1
 
