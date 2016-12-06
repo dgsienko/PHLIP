@@ -8,12 +8,8 @@ import scipy.io.wavfile
 import pyaudio
 import wave
 import time
-from multiprocessing import Process
+import multiprocessing
 import random
-
-
-#fname = "Jekk - First.wav"
-#threshold = 60
 
 def get_song_list(cid,artist_name):
     #gets list of songs from input artist
@@ -64,37 +60,46 @@ def mp3_to_wav(in_fname):
     
     #convert to wav
     sound = AudioSegment.from_mp3(in_fname)
-    sound.export(in_fname[:-3] + "wav", format="wav")  
+    sound.export(in_fname[:-3] + "wav", format="wav")
     
-def wav_analyzer(fname):
-    #audio analyzer
+def wav_analyzer_fft(fname,threshold):
     
-    #reads in wav file given filename
     rate, data = scipy.io.wavfile.read(fname)
     signal = data[:,0]
-    convert_to_16 = float(2**15)
-    signal = abs(signal/(float(2**15)+1.0))
-    
-    #if first value is not zero, add to plan
-    plan = []
-    if signal[0] != 0:
-        plan += [0]
      
-    #creates plan for lights/list of index values in samples
-    for i in range(1,len(signal)):
-        if ((signal[i] - signal[i-1]) / signal[i-1]) * 100 == 70:
-            plan += [i]
-            
-    #convert list values to seconds
+    w = rate//10
+    len_sig = int(len(signal)//w)
+        
+    blah = []
+    blah_prev = []
+    blah_ffts = []
+    for i in range(len_sig):
+        for j in range((i*w),((i*w)+w)):
+            blah += [signal[j]]
+            blah_prev += [signal[j]]
+        if i == len_sig - 1:
+            if len(blah_prev) == len(blah):
+                blah_ffts += [np.fft.fft(blah)]
+                blah = []
+        else:
+            blah_ffts += [np.fft.fft(blah)]
+            blah = []
+    
+    plan = []
+    for i in range(1,len(blah_ffts)):
+        if (sum(blah_ffts[i] - blah_ffts[i-1])/sum(blah_ffts[i-1])) * 100 > threshold:
+            plan += [i*w]
+    
     plan_sec = [plan[i]/44100 for i in range(0,len(plan))]
-    #print(len(plan_sec))
     return plan_sec
 
 def play_song(fname,song_ready,color_ready):
     #plays song
-    
+
     song_ready.set() 
     color_ready.wait()
+    
+    #time,wait(some time) <= if necessary to sync
     
     chunk = 1024
     wf = wave.open(fname, 'rb')
@@ -114,8 +119,8 @@ def play_song(fname,song_ready,color_ready):
     stream.close()
     p.terminate()
     
-def mainRun(fname):
-    plan_sec = wav_analyzer(fname)
+def mainRun(fname,threshold):
+    plan_sec = wav_analyzer_fft(fname,threshold)
     
     color_ready = multiprocessing.Event()
     song_ready = multiprocessing.Event()
@@ -124,5 +129,3 @@ def mainRun(fname):
     songProcess.start()
     
     setColor_v2(plan_sec,color_ready,song_ready)
-
-
