@@ -18,8 +18,7 @@ def setColor_v2(plan_sec,color_ready,song_ready):
 	color_ready.set() 
 	song_ready.wait()
 	for i in range(1,len(plan_sec)):
-		#os.system('hue lights all ' + randomHex())
-		print(randomHex())
+		os.system('hue lights all ' + randomHex())
 		time.sleep(plan_sec[i]-plan_sec[i-1])
 
 
