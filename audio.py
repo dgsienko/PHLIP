@@ -123,10 +123,13 @@ def play_song(fname):
     
 def mainRun(fname):
     plan_sec = wav_analyzer(fname)
+    
+    color_ready = multiprocessing.Event()
+    song_ready = multiprocessing.Event()
+    
+    songProcess = multiprocessing.Process(target=play_song,args = (fname, song_ready, color_ready))
+    songProcess.start()
+    
+    setColor(plan_sec,color_ready,song_ready)
 
-    p2 = Process(target=setColor(plan_sec))
-    p1 = Process(target=play_song(fname))
-    p1.start()
-    p2.start()
-    p1.join()
-    p2.join()
+
