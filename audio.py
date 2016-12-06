@@ -100,8 +100,11 @@ def setColor(plan_sec):
         print(randomHex())
         time.sleep(plan_sec[i]-plan_sec[i-1])
 
-def play_song(fname):
+def play_song(fname,song_ready,color_ready):
     #plays song
+    
+    song_ready.set() 
+    color_ready.wait()
     
     chunk = 1024
     wf = wave.open(fname, 'rb')
