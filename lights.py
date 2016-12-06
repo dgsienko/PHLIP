@@ -14,9 +14,9 @@ def setColor(color):
 
 def setColor_updated(plan_sec):
 	for i in range(1,len(plan_sec)):
-       	os.system('hue lights all ' + randomHex())
-        #print(randomHex())
-        time.sleep(plan_sec[i]-plan_sec[i-1])
+		os.system('hue lights all ' + randomHex())
+		#print(randomHex())
+		time.sleep(plan_sec[i]-plan_sec[i-1])
 
 
 def flash(color):

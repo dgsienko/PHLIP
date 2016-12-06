@@ -188,16 +188,25 @@ def get_alert(alert_type,alert_sign,alert_temp):
 
 def create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, length, color):
 	light_id = get_light_id(light_type,length, color)
+	print('here')
 	if (light_id == -1):
+		print('inside if')
 		create_lightEffect(light_type,length, color)
+		print('created light effect')
 		light_id = get_light_id(light_type,length, color)
+	
 	alert_id = get_alert(alert_type, alert_sign, alert_temp)
+	print('alert_id=',alert_id)
 	if(alert_id == -1):
-		query = "insert into alerts (user_id, light_id, alert_type, alert_sign, alert_temp) values ('{0}','{1}','{2}','{3}','{4}')"
+		print('inside if')
+		print((user_id,light_id,alert_type,alert_sign,alert_temp))
+		query = "insert into alerts(user_id, light_id, alert_type,alert_sign,alert_temp) values ({0},{1},'{2}',{3},{4})"
 		cursor = conn.cursor()
+		print(query.format(user_id,light_id,alert_type,alert_sign,alert_temp))
 		cursor.execute(query.format(user_id,light_id,alert_type,alert_sign,alert_temp))
 		cursor.commit()
 	else:
+		print('inside else')
 		query = "update alerts set light_id='{0}', user_id='{1}' where alert_id='{2}'"
 		cursor = conn.cursor()
 		cursor.execute(query.format(light_id,user_id,alert_id))
@@ -307,7 +316,7 @@ def get_light_id(light_type,length,color):
 def create_lightEffect(light_type,length,color):
 	query="insert into light_effects (light_type, light_color, light_length) values ('{0}','{1}',{2})"
 	cursor = conn.cursor()
-	cursor.execute(query.format(light_type,length,color))
+	cursor.execute(query.format(light_type,color,length))
 	conn.commit()
 
 def compare_date(dt,hour,minute):
@@ -334,7 +343,7 @@ def within_range_after(range_after,curr_hr,curr_min,new_hr,new_min):
 # Use this to check if a email has already been registered
 def isEmailUnique(email):
 	cursor = conn.cursor()
-	if cursor.execute("SELECT email  FROM Users WHERE email = '{0}'".format(email)): 
+	if cursor.execute("SELECT email FROM users WHERE email = '{0}'".format(email)): 
 		# This means there are greater than zero entries with that email
 		return False
 	else:
@@ -342,7 +351,7 @@ def isEmailUnique(email):
 
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
-	cursor.execute("SELECT uid FROM users WHERE email = '{0}'".format(email))
+	cursor.execute("SELECT user_id FROM users WHERE email = '{0}'".format(email))
 	if(cursor.rowcount > 0):
 		return cursor.fetchone()[0]
 	else:
@@ -426,38 +435,46 @@ def addrules():
 @flask_login.login_required
 def addrules_post():
 	try:
-		alert_type=request.form.get('alert_type') # sun or temp
-		alert_sign = ''
+		alert_type=request.form['alert_type'] # sun or temp
+		alert_sign = '-'
 		light_type = 0
-		light_type= ''
-		dur= ''
-		color= ''
+		light_type= '-'
+		dur= '-'
+		color= '-'
+		alert_temp=0
 		user_id = getUserIdFromEmail(flask_login.current_user.id)
+		print('d')
 
-		if(alert_type == 'sun'):
-			alert_sign=int(request.form.get('tempdrop')) # 1, -1
-			alert_temp=int(request.form.get('tempval')) # string of number
-			light_type=request.form.get('tempeffect') # flash loop on
-			dur=int(request.form.get('tempduration')) # string of number
-			color = request.form.get('tempcolor') # string
+		if(alert_type == 'temp'):
+			print('e')
+			alert_sign=int(request.form['tempdrop']) # 1, -1
+			alert_temp=int(request.form['tempval']) # string of number
+			light_type=request.form['tempeffect'] # flash loop on
+			dur=int(request.form['tempduration']) # string of number
+			color = request.form['tempcolor'] # string
 
+			print('A',user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 			create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 
-		elif(alert_type == 'temp'):
-			alert_sign=int(request.form.get('sundrop')) # 1, -1
-			light_type=request.form.get('suneffect') # flash loop on
-			dur=int(request.form.get('sunduration')) # string of number
-			color = request.form.get('suncolor') # string
+		elif(alert_type == 'sun'):
+			print('f')
+			alert_sign=int(request.form['sundrop']) # 1, -1
+			print('g')
+			light_type=request.form['suneffect'] # flash loop on
+			dur=int(request.form['sunduration']) # string of number
+			color = request.form['suncolor'] # string
 
+			print('B',user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 			create_alert(user_id, alert_type, alert_sign, 0, light_type, dur, color)
+			print('ff')
 		else:
+			print('bad values passed in.')
 			return redirect('/addrules', message='Bad Values!')
-
-		
 
 
 		
 	except:
+		print('C',user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
 		return flask.redirect('/addrules')
 	lid = get_lid(city,state)
