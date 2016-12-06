@@ -9,6 +9,47 @@
 		<title></title>
 	</head>
 	<body>
+		<div>
+			{% if alerts %}
+				Current Rules:	
+				<table border='1'>
+					<th> User </th>
+					<th> Alert Type </th>
+					<th> Temp (F)</th>
+					<th> Lighting Effect </th>
+					<th> Lighting Color </th>
+					<th> Light Length </th>
+					{% for alert in alerts %} 
+					{#alert=[email,alert type, +/- 1, temp, effect, color, length] #}
+						<tr>
+							<td> {{alert[0]}} </td>
+							{% if alert[1] == 'temp' %}
+								{% if alert[2] == 1 %}
+									<td> Above Temp </td>
+								{% else %}
+									<td> Below Temp </td>
+								{% endif %}
+								<td> {{alert[3]}} </td>
+							{% else %}
+								{% if alert[2] == 1 %}
+									<td> Sunrise </td>
+								{% else %}
+									<td> Sunset </td>
+								{% endif %}
+								<td> -- </td>
+							{% endif %}
+							<td> {{alert[4]}} </td>
+							<td> {{alert[5]}} </td>
+							<td> {{alert[6]}} </td>
+						</tr>
+					{% endfor %}
+
+				</table>
+			{% else %}
+				You currently have no rules.
+			{% endif %}
+
+		</div>
 		<form action="/addrules" method="POST">
 			<h1> Weather Alerts </h1>
 			
@@ -20,14 +61,14 @@
 			<div id="sunif">
 			<br>
 			At
-			<select name="sundrop">
+			<select name="sundrop" id="sundrop">
 				<option value="1">Sunrise</option>
 				<option value="-1">Sunset</option>
 			</select>
 			</div>
 			<div id="sundo">
 			Do 
-			<select name="suneffect">
+			<select name="suneffect" id="suneffect">
 				<option value="flash">Flash</option>
 				<option value="loop">Color Loop</option>
 				<option value="on">Color</option>
@@ -48,19 +89,20 @@
 			</div>
 			<div id="sunalert">For 30 Seconds</div>
 			<div id="sunsub"><input type="submit"></div>
+			<div id="suntest"><input type="submit" value="Test"></div>
 			
 			<div id="tempif">
 			<br>
 			If temperature goes
-			<select name="tempdrop">
+			<select name="tempdrop" id="tempdrop">
 				<option value="1">above</option>
 				<option value="-1">below</option>
 			</select>
-			<input type="text" id="tempval" style="width: 50px"> ℉,
+			<input type="text" id="tempval" name="tempval"> ℉,
 			</div>
 			<div id="tempdo">
 			Do 
-			<select name="tempeffect">
+			<select name="tempeffect" id="tempeffect">
 				<option value="flash">Flash</option>
 				<option value="loop">Color Loop</option>
 				<option value="on">Color</option>
@@ -69,7 +111,7 @@
 			<div id="tempcol">Color: <input type="text" name="tempcolor"></div>
 			<div id="tempfor">
 			For
-			<select name="tempduration">
+			<select name="tempduration" id="tempduration">
 				<option value="5">5 Seconds</option>
 				<option value="10">10 Seconds</option>
 				<option value="30">30 Seconds</option>
@@ -81,6 +123,7 @@
 			</div>
 			<div id="tempalert">For 30 Seconds</div>
 			<div id="tempsub"><input type="submit"></div>
+			<div id="temptest"><input type="submit" value="Test"></div>
 		</form>
 	</body>
 </html>

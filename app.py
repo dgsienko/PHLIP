@@ -186,7 +186,15 @@ def get_alert(alert_type,alert_sign,alert_temp):
 	else:
 		return -1
 
+def get_display_alerts():
+	query = 'select u.email, a.alert_type, a.alert_sign, a.alert_temp, l.light_type, l.light_color, l.light_length from users u, alerts a, light_effects l where l.light_id=a.light_id and u.user_id=a.user_id'
+	cursor = conn.cursor()
+	cursor.execute(query)
+	return cursor.fetchall()
+
 def create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, length, color):
+	if(light_type == 'flash'):
+		length = 30
 	light_id = get_light_id(light_type,length, color)
 	print('here')
 	if (light_id == -1):
@@ -200,17 +208,20 @@ def create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, length
 	if(alert_id == -1):
 		print('inside if')
 		print((user_id,light_id,alert_type,alert_sign,alert_temp))
-		query = "insert into alerts(user_id, light_id, alert_type,alert_sign,alert_temp) values ({0},{1},'{2}',{3},{4})"
+		query = "insert into alerts(user_id,light_id,alert_type,alert_sign,alert_temp) values({0},{1},'{2}',{3},{4})"
 		cursor = conn.cursor()
 		print(query.format(user_id,light_id,alert_type,alert_sign,alert_temp))
 		cursor.execute(query.format(user_id,light_id,alert_type,alert_sign,alert_temp))
-		cursor.commit()
+		conn.commit()
+		print('query finished A')
 	else:
 		print('inside else')
-		query = "update alerts set light_id='{0}', user_id='{1}' where alert_id='{2}'"
+		query = "update alerts set light_id={0}, user_id={1} where alert_id={2}"
+		print(query.format(light_id,user_id,alert_id))
 		cursor = conn.cursor()
 		cursor.execute(query.format(light_id,user_id,alert_id))
-		cursor.commit()
+		conn.commit()
+		print('query finished B')
 
 def get_saved_condition(lid):
 	query = "select * from locations where lid = '{0}'"
@@ -272,6 +283,15 @@ def run_lights(light_id):
 		l.cycleDuration(color,length)
 	else:
 		l.onDuration(color,length)
+
+def run_lights(light_type, length, color):
+	if(light_type == 'flash'):
+		l.flash(color)
+	elif(light_type == 'loop'):
+		l.cycleDuration(color,length)
+	else:
+		l.onDuration(color,length)
+
 
 def get_light_effect(light_id):
 	query="select * from light_effects where light_id='{0}'"
@@ -408,11 +428,37 @@ def login_post():
 
 #---#
 
+@app.route("/testlights", methods=['GET'])
+@flask_login.login_required
+def test_lights_get():
+	return '''
+			This URL is used for testing lighting effects.
+			'''
+
+
+@app.route("/testlights", methods=['POST'])
+@flask_login.login_required
+def test_lights_post():
+	effect = ''
+	color = ''
+	length = ''
+	try:
+		effect = request.form['effect']
+		color = request.form['color']
+		length = request.form['length']
+	except:
+		print('not all values filled')
+		return -1
+	run_lights(effect,color,length)
+	return 1
+
+#---#
+
 
 @app.route("/home", methods=['GET'])
 @flask_login.login_required
 def home():
-	return render_template('home.html', alert=get_alerts())
+	return render_template('home.html', alert=get_display_alerts())
 
 
 #---#
@@ -428,7 +474,7 @@ def logout():
 @app.route("/addrules", methods=['GET'])
 @flask_login.login_required
 def addrules():
-	return render_template('alerts.html', alert=get_alerts())
+	return render_template('alerts.html', alerts=get_display_alerts())
 
 
 @app.route("/addrules", methods=['POST'])
@@ -477,19 +523,6 @@ def addrules_post():
 		print('C',user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
 		return flask.redirect('/addrules')
-	lid = get_lid(city,state)
-	if lid == -1:
-		create_location(city,state)
-		lid = get_lid(city,state)
-	cursor = conn.cursor()
-	test =  isEmailUnique(email)
-	if test:
-		print(cursor.execute("INSERT INTO Users (email, password, lid) VALUES ('{0}', '{1}', '{2}')".format(email, password, lid)))
-		conn.commit()
-		user = User()
-		user.id = email
-		flask_login.login_user(user)
-		return redirect('/addrules')
 	return redirect('/addrules')
 
 

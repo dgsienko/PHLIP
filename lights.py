@@ -35,10 +35,13 @@ def onDuration(color,sec):
 		return 1
 
 def cycleDuration(color, sec):
-	setColor(color)
-	os.system('hue lights all colorloop')
-	time.sleep(sec)
-	reset()
+	if(sec == -1):
+		setColor(color)
+	else:
+		setColor(color)
+		os.system('hue lights all colorloop')
+		time.sleep(sec)
+		reset()
 	return 1
 
 
