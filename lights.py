@@ -12,11 +12,13 @@ def setColor(color):
 	os.system('hue lights all ' + str(color).lower())
 	return 1
 
-def setColor_updated(plan_sec):
-	for i in range(1,len(plan_sec)):
-		os.system('hue lights all ' + randomHex())
-		#print(randomHex())
-		time.sleep(plan_sec[i]-plan_sec[i-1])
+def setColor_v2(plan_sec,color_ready,song_ready):
+	color_ready.set() 
+    	song_ready.wait()
+    	for i in range(1,len(plan_sec)):
+       		#os.system('hue lights all ' + randomHex())
+        	print(randomHex())
+        	time.sleep(plan_sec[i]-plan_sec[i-1])
 
 
 def flash(color):
