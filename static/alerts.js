@@ -12,6 +12,7 @@ $(document).ready(function() {
 	$('#tempfor').hide();
 	$('#tempalert').hide(); 
 	$('#tempsub').hide(); 
+	$('#temptest').hide(); 
 	
 	$('input[type="radio"]').click(function() {
 		 if($(this).attr('id') == 'sunid') {
@@ -21,6 +22,7 @@ $(document).ready(function() {
 				$('#tempfor').hide();
 				$('#tempalert').hide(); 
 				$('#tempsub').hide(); 
+				$('#temptest').hide(); 
 				
 				$('#sunif').show(); 
 				$('#sundo').show();
@@ -46,11 +48,10 @@ $(document).ready(function() {
 					}
 				});
 				$( "#suntest" ).click(function() {
-					testcolor = $( "#suncol" ).val();
+					testcolor = $( "#suncolor" ).val();
 					testlength = $( "#sunduration" ).val();
 					testeffect = $( "#suneffect" ).val();
-					$.post("localhost:5000/testlights", {color: testcolor, length: testlength, effect : testeffect} {
-					});
+					$.post("http://localhost:5000/testlights", {color:testcolor, length:testlength, effect:testeffect});
 				});
 				     
 		 }
@@ -69,7 +70,8 @@ $(document).ready(function() {
 						$('#tempcol').show();
 						$('#tempdo').show();
 						$('#tempalert').show();
-						$('#tempsub').show();  						
+						$('#tempsub').show();
+						$('#temptest').show();   						
 						$('#tempeffect').change(function(){
 							if($(this).val() == 'flash') {
 								$('#tempcol').show();
@@ -90,7 +92,14 @@ $(document).ready(function() {
 					}
 					 else
 						$('#tempdo').hide();
-				});          
+				}); 
+				$( "#temptest" ).click(function() {
+					testcolor = $( "#tempcolor" ).val();
+					testlength = $( "#tempduration" ).val();
+					testeffect = $( "#tempeffect" ).val();
+					$.post("http://localhost:5000/testlights", {color:testcolor, length:testlength, effect:testeffect});
+				});
+         
 		 }
 	});
 	

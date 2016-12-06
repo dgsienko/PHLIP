@@ -187,7 +187,7 @@ def get_alert(alert_type,alert_sign,alert_temp):
 		return -1
 
 def get_display_alerts():
-	query = 'select u.email, a.alert_type, a.alert_sign, a.alert_temp, l.light_type, l.light_color, l.light_length from users u, alerts a, light_effects l where l.light_id=a.light_id and u.user_id=a.user_id'
+	query = 'select u.email, a.alert_type, a.alert_sign, a.alert_temp, l.light_type, l.light_color, l.light_length, a.alert_id from users u, alerts a, light_effects l where l.light_id=a.light_id and u.user_id=a.user_id'
 	cursor = conn.cursor()
 	cursor.execute(query)
 	return cursor.fetchall()
@@ -284,7 +284,8 @@ def run_lights(light_id):
 	else:
 		l.onDuration(color,length)
 
-def run_lights(light_type, length, color):
+def run_lights(light_type, color, length):
+	print('run lights with params:',light_type,',',color,',',length)
 	if(light_type == 'flash'):
 		l.flash(color)
 	elif(light_type == 'loop'):
@@ -378,6 +379,12 @@ def getUserIdFromEmail(email):
 		return -1
 
 
+def delete_alert(alert_id):
+	query="delete from alerts where alert_id={0}"
+	cursor.execute(query.format(alert_id))
+	conn.commit()
+
+
 #---#
 
 @app.route('/', methods=['GET'])
@@ -431,26 +438,53 @@ def login_post():
 @app.route("/testlights", methods=['GET'])
 @flask_login.login_required
 def test_lights_get():
-	return '''
-			This URL is used for testing lighting effects.
-			'''
+	return redirect('/addrules')
 
 
 @app.route("/testlights", methods=['POST'])
 @flask_login.login_required
 def test_lights_post():
+	print('/testlights post')
 	effect = ''
 	color = ''
 	length = ''
 	try:
 		effect = request.form['effect']
+		length = int(request.form['length'])
 		color = request.form['color']
-		length = request.form['length']
+		
 	except:
 		print('not all values filled')
-		return -1
+		print('effect:',effect,", color:",color,", length:",length)
+		return redirect('/addrules')
 	run_lights(effect,color,length)
-	return 1
+	return redirect('/addrules')
+
+#---#
+
+
+@app.route("/deletealert", methods=['GET'])
+@flask_login.login_required
+def delete_alert_get():
+	return redirect('/addrules')
+
+
+@app.route("/deletealert", methods=['POST'])
+@flask_login.login_required
+def delete_alert_post():
+	print('/delete alert post')
+	effect = ''
+	color = ''
+	length = ''
+	try:
+		alert_id = int(request.form['alert_id'])
+		
+	except:
+		print('Bad Values.')
+		print('alert_id:',alert_id)
+		return redirect('/addrules')
+	delete_alert(alert_id)
+	return redirect('/addrules')
 
 #---#
 

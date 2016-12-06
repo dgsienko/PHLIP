@@ -5,11 +5,13 @@ import random
 
 
 def reset():
-	os.system('hue lights reset')
+	os.system('hue lights all white')
+	print('reset lights')
 	return 1
 
 def setColor(color):
 	os.system('hue lights all ' + str(color).lower())
+	print('hue lights all ' + str(color).lower())
 	return 1
 
 def setColor_v2(plan_sec,color_ready,song_ready):
@@ -24,9 +26,13 @@ def setColor_v2(plan_sec,color_ready,song_ready):
 def flash(color):
 	setColor(color)
 	os.system('hue lights all alert')
+	print('flashing lights')
+	time.sleep(30)
+	reset()
 	return 1
 
 def onDuration(color,sec):
+	sec = int(sec)
 	if(sec == -1):
 		setColor(color)
 		return 1
@@ -37,11 +43,13 @@ def onDuration(color,sec):
 		return 1
 
 def cycleDuration(color, sec):
+	sec = int(sec)
 	if(sec == -1):
 		setColor(color)
 	else:
 		setColor(color)
 		os.system('hue lights all colorloop')
+		print('cycling colors')
 		time.sleep(sec)
 		reset()
 	return 1

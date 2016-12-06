@@ -19,6 +19,7 @@
 					<th> Lighting Effect </th>
 					<th> Lighting Color </th>
 					<th> Light Length </th>
+					<th> Delete Alert </th>
 					{% for alert in alerts %} 
 					{#alert=[email,alert type, +/- 1, temp, effect, color, length] #}
 						<tr>
@@ -41,6 +42,7 @@
 							<td> {{alert[4]}} </td>
 							<td> {{alert[5]}} </td>
 							<td> {{alert[6]}} </td>
+							<td> <form method='POST' action='/deletealert'> <input type='hidden' name='alert_id' value='{{alert[7]}}'> <input type="submit" value='Delete'></form></td>
 						</tr>
 					{% endfor %}
 
@@ -74,7 +76,7 @@
 				<option value="on">Color</option>
 			</select>
 			</div>
-			<div id="suncol">Color: <input type="text" name="suncolor"></div>
+			<div id="suncol">Color: <input type="text" id='suncolor' name="suncolor"></div>
 			<div id="sunfor">
 			For
 			<select name="sunduration" id="sunduration">
@@ -88,8 +90,9 @@
 			</br>
 			</div>
 			<div id="sunalert">For 30 Seconds</div>
+			<div id="suntest"><input type="button" value="Test"></div>
 			<div id="sunsub"><input type="submit"></div>
-			<div id="suntest"><input type="submit" value="Test"></div>
+			
 			
 			<div id="tempif">
 			<br>
@@ -108,7 +111,7 @@
 				<option value="on">Color</option>
 			</select>
 			</div>
-			<div id="tempcol">Color: <input type="text" name="tempcolor"></div>
+			<div id="tempcol">Color: <input type="text" id='tempcolor' name="tempcolor"></div>
 			<div id="tempfor">
 			For
 			<select name="tempduration" id="tempduration">
@@ -122,8 +125,9 @@
 			</br>
 			</div>
 			<div id="tempalert">For 30 Seconds</div>
+			<div id="temptest"><input type="button" value="Test"></div>
 			<div id="tempsub"><input type="submit"></div>
-			<div id="temptest"><input type="submit" value="Test"></div>
+			
 		</form>
 	</body>
 </html>
