@@ -51,7 +51,6 @@
 		<form action="/addrules" method="POST">
 		<div class="leftinfoA">
 			<h1> Weather Alerts </h1>
-			<img class="image fit" src="../templated-interphase/images/weather.jpg" alt="" />
 			<div id="weatherform">
 			<br>
 			<input type="radio" name="alert_type" id="sunid" value="sun"> Sunrise/Sunset
@@ -175,6 +174,8 @@
 			{% else %}
 				You currently have no rules.
 			{% endif %}
+
+			<img class="image fit" src="{{ url_for('static', filename='templated-interphase/images/weather.jpg')}}" alt="" />
 
 		</div>
 	</form>
