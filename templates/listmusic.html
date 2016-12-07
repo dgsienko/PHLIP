@@ -1,0 +1,16 @@
+
+
+{% if artist %}
+<h2>{{artist}}</h2>
+{% endif %}
+
+{% if song_list %}
+	<ul>
+	{% for song in song_list %}
+	<li> <form method='POST' action='/playmusic'> <input type='hidden' name='artist' value='{{artist}}'> <input type='hidden' name='song_name' value='{{song}}'> <input type='submit' value='{{song}}'> </form> </li>
+	{% endfor %}
+	</ul>
+{% endif %}
+
+<a href='/logout'>logout</a><br>
+<a href='/home'>home</a><br>

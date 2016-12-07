@@ -9,7 +9,7 @@
 
 $(document).ready(function() {
 	setTimeout(function() {
-        $('.message').fadeOut('fast');
-    }, 2000);
+        $('.message').fadeOut('medium');
+    }, 3000);
 	
 });

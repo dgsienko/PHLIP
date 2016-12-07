@@ -10,6 +10,7 @@ import wave
 import time
 import multiprocessing
 import random
+import os
 
 def get_song_list(cid,artist_name):
 	#Gets list of songs from input artist
@@ -23,7 +24,7 @@ def get_song_list(cid,artist_name):
 	song_list = [artist_json['results'][i]['name'] for i in range(len(artist_json['results']))]
 	return(song_list,artist_json)    
     
-def get_songid(song_name):
+def get_songid(cid,song_name,artist_name):
 	#Gets song id from Jamendo database
 
 	#Gets list of songs by artist and the artist data
@@ -39,11 +40,11 @@ def get_songid(song_name):
 	song_id = artist_json['results'][y]['id'] 
 	return(song_id)
 
-def get_song():
+def get_song(cid,song_name,artist_name):
 	#Downloads mp3 of song
 
 	#Gets song_id
-	song_id = get_songid(song_name)  
+	song_id = get_songid(cid,song_name,artist_name)  
 	url = "https://api.jamendo.com/v3.0/tracks/file/?client_id="+str(cid)+"&id="+str(song_id)+"&action=download"
 	#Names downloaded file, as of now downloads to desktop
 	cwd = os.getcwd()
@@ -53,11 +54,13 @@ def get_song():
 	content = requests.get(url, stream=True).content   
 	with open(fname, 'wb') as f:
 		f.write(content)
-        
+	return mp3_to_wav(fname)	
+
 def mp3_to_wav(in_fname):
 	#Converts mp3 to wav file, saves new file in same place
 	sound = AudioSegment.from_mp3(in_fname)
 	sound.export(in_fname[:-3] + "wav", format="wav")
+	return in_fname[:-3] + "wav"
     
 def wav_analyzer_fft(fname,threshold):
 	#Analyzes wav file

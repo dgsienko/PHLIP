@@ -529,7 +529,7 @@ def index():
 	if(not(exists_users())):
 		return render_template('register.html')
 	elif(flask_login.current_user.is_anonymous):
-		return render_template('/login', message="Login to continue")
+		return render_template('login.html', message="Login to continue")
 	else:
 		return render_template('home.html', message="Login successful", alerts=get_display_alerts())
 
@@ -737,15 +737,45 @@ def setup_post():
 @app.route("/music", methods=['GET'])
 @flask_login.login_required
 def music():
-	audio.mainRun('music/The.Madpix.Project - Liquid Blue.wav',95)
-	return render_template('music.html')
+	#audio.mainRun('music/The.Madpix.Project - Liquid Blue.wav',95)
+	return render_template('music.html', stage1=True)
 
 
-@app.route("/music", methods=['POST'])
+
+# @app.route("/playmusic", methods=['GET'])
+# @flask_login.login_required
+# def play_music():
+# 	#audio.mainRun('music/The.Madpix.Project - Liquid Blue.wav',95)
+# 	return render_template('music.html')
+
+
+@app.route("/listmusic", methods=['POST'])
 @flask_login.login_required
-def music_post():
-	return render_template('music.html')
+def list_music_post():
+	try:
+		artist=validate_str(request.form.get('artist'))
+	except:
+		print('invalid params')
+		return render_template('music.html')
+	print(artist, get_setting('music_key'))
+	song_list,artist_json = audio.get_song_list(get_setting('music_key'),artist)
+	return render_template('listmusic.html', artist=artist, song_list=song_list)
 
+@app.route("/playmusic", methods=['POST'])
+@flask_login.login_required
+def play_music_post():
+	print('post to playmusic')
+	try:
+		print('get song name')
+		song_name=validate_str(request.form.get('song_name'))
+		artist_name=validate_str(request.form.get('artist'))
+	except:
+		print('invalid params')
+		return render_template('music.html')
+	print(song_name)
+	fname = audio.get_song(get_setting('music_key'),song_name,artist_name)
+	audio.mainRun(fname,95)
+	return render_template('playmusic.html' )
 
 
 ## Methods to handle registering users
