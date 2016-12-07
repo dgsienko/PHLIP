@@ -1,5 +1,5 @@
 # README 
-This is the repository for the CS 411 (Group 4) project, P.H.L.I.P.
+This is the repository for the CS 411 (Group 4) project, P.H.L.I.P. Read on for Documentation.
 
 ## Overview
 Philips Hue Light Interface Program, or P.H.L.I.P., aims to help you do more with Philip Hue lights. We currently have two modes: Weather Alerts and Audio Visualizer.
@@ -25,4 +25,4 @@ Our project requires the following packages/technologies be installed:
 * [Pydub](http://pydub.com)
 
 ## Technologies
-Our project uses a Thin Client, Flask/Python, and MySQL. We used the Flask-MySQL combination because we were more familiar with it than with our alternatives. Having a Thin Client makes sense because, especially in the case of Weather Alerts, the website only needs to be available to manage rules -- the lights can update in the background (the computation is handled on the back-end). 
+Our project is a **Thin Client**, using **Flask/Python** and **MySQL**. We used the Flask-MySQL combination because we were more familiar with it than with our alternatives. Having a Thin Client makes sense because, especially in the case of Weather Alerts, the website only needs to be available to manage rules -- the lights can update in the background (the computation is handled on the back-end). 
