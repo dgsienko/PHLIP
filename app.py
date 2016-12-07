@@ -627,8 +627,22 @@ def setup():
 @app.route("/setup", methods=['POST'])
 @flask_login.login_required
 def setup_post():
+	try:
+		weather_key=request.form.get('weather_key')
+		music_key=request.form.get('music_key')
+		update_speed=request.form.get('update_speed')
+		city=request.form.get('city')
+		state=request.form.get('state')
+		new_users=-1
+		if(request.form.get('new_users')):
+			new_users=1
 
-	return redirect('/setup')
+
+	except:
+		print('PROBLEM:: ' , weather_key,',',music_key,',',update_speed,',',city,',',state,',',new_users)
+		return redirect('/setup')
+	print('CORRECT:: ' , weather_key,',',music_key,',',update_speed,',',city,',',state,',',new_users)
+	return render_template('setup.html', settings=get_settings())
 
 
 #---#
