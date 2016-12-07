@@ -40,7 +40,7 @@ mysql = MySQL()
 app = Flask(__name__)
 app.secret_key = config.secret_key
 
-key = config.weatherKey
+key = get_setting('weather_key')
 
 ## Lookup config file to authenticate database
 app.config['MYSQL_DATABASE_USER'] = config.dbUser
@@ -257,9 +257,9 @@ def should_sun_rule(lid):
 	_,dt,_,sunrise_hour,sunrise_minute,sunset_hour,sunset_minute,current_temp = get_saved_condition(lid)
 	curr_hr = datetime.datetime.now().time().hour
 	curr_min = datetime.datetime.now().time().minute
-	if (within_range_after(config.updateSpeed, sunrise_hour,sunrise_minute, curr_hr, curr_min)):
+	if (within_range_after(get_setting('update_speed'), sunrise_hour,sunrise_minute, curr_hr, curr_min)):
 		return -1
-	if (within_range_after(config.updateSpeed, sunset_hour,sunset_minute, curr_hr, curr_min)):
+	if (within_range_after(get_setting('update_speed'), sunset_hour,sunset_minute, curr_hr, curr_min)):
 		return 1
 	else:
 		return 0
@@ -536,7 +536,7 @@ def index():
 ## Routes to login
 @app.route("/login", methods=['GET'])
 def login():
-	if(lask_login.current_user.is_anonymous):
+	if(flask_login.current_user.is_anonymous):
 		return render_template('login.html') 
 	else:
 		return redirect('/home')
@@ -795,11 +795,11 @@ def register_user():
 		password=validate_str(request.form.get('password'))
 	except:
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
-		return flask.render_template('register.html') ## This might not work! —Karan
+		return render_template('register.html') ## This might not work! —Karan
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
-		print(cursor.execute("INSERT INTO Users (email, password) VALUES ('{0}', '{1}')".format(email, password)))
+		print(cursor.execute("INSERT INTO users (email, password) VALUES ('{0}', '{1}')".format(email, password)))
 		conn.commit()
 		user = User()
 		user.id = email

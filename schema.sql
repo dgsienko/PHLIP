@@ -86,7 +86,7 @@ create table alerts (
 
 create table current_conditions(
 	condition_id int(5) primary key auto_increment not null,
-	dt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	dt timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	lid int(5),
 	sunrise_hour int(2),
 	sunrise_minute int(2),
