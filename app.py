@@ -9,6 +9,7 @@ import json
 import datetime
 
 import lights as l
+import audio
 import config
 
 
@@ -635,6 +636,7 @@ def setup_post():
 @app.route("/music", methods=['GET'])
 @flask_login.login_required
 def music():
+	audio.mainRun('music/The.Madpix.Project - Liquid Blue.wav',95)
 	return render_template('music.html')
 
 

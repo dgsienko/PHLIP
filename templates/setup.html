@@ -5,6 +5,12 @@ setup
 <form method='POST' action='/setup'>
 <label for='update_speed'>Weather API query speed (minutes)</label>
 <input name='update_speed' type='text' value='{{settings[0]}}'>
+<label for='weather_key'>Allow new users to register</label>
+{% if settings[1] == 1 %}
+<input name='weather_key' type='radio' value='{{settings[0]}}'>
+{% else %}
+<input name='weather_key' type='radio' value='{{settings[0]}}'>
+{% endif %}
 <label for='weather_key'>Wunderground API Key</label>
 <input name='weather_key' type='text' value='{{settings[0]}}'>
 <label for='music_key'>Jamendo API Key</label>
