@@ -1,5 +1,5 @@
 # README 
-This is the repository for the CS 411 (Group 4) project, P.H.L.I.P. Read on for Documentation.
+This is the repository for the CS 411 (Group 4) project, P.H.L.I.P. Read on for Data Documentation.
 
 ## Overview
 Philips Hue Light Interface Program, or _P.H.L.I.P._, aims to help you do more with Philip Hue lights. We currently have two modes: Weather Alerts and Audio Visualizer.
