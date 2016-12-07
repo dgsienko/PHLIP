@@ -23,6 +23,8 @@ Our project requires the following packages/technologies be installed:
 * [SciPy](https://www.scipy.org)
 * [PyAudio](https://people.csail.mit.edu/hubert/pyaudio/)
 * [Pydub](http://pydub.com)
+* [FFmpeg](https://ffmpeg.org)
+* [PortAudio](http://portaudio.com)
 
 ## Technologies
 Our project is a **Thin Client**, using **Flask/Python** and **MySQL**. We used the Flask-MySQL combination because we were more familiar with it than with our alternatives. Having a Thin Client makes sense because, especially in the case of Weather Alerts, the website only needs to be available to manage rules -- the lights can update in the background (the computation is handled on the back-end). 
