@@ -69,7 +69,7 @@ def invertHex_primer(hexnum):
         inverse = hex(abs(int(hexnum, 16) - 255))[2:] 
         #If the number is single digit add a preceding zero
         if len(inverse) == 1: 
-        inverse = '0'+inverse
+		inverse = '0'+inverse
         return inverse
     
 def hexInvert_main(hexnum):
