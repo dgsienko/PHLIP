@@ -2,7 +2,7 @@
 This is the repository for the CS 411 (Group 4) project, P.H.L.I.P. Read on for Documentation.
 
 ## Overview
-Philips Hue Light Interface Program, or P.H.L.I.P., aims to help you do more with Philip Hue lights. We currently have two modes: Weather Alerts and Audio Visualizer.
+Philips Hue Light Interface Program, or _P.H.L.I.P._, aims to help you do more with Philip Hue lights. We currently have two modes: Weather Alerts and Audio Visualizer.
 
 ### Weather Alerts
 A user sets up an account with his location and can then set up a bunch of weather-based rules. For example, "turn the lights yellow for a minute at sunrise," or "flash the lights red for 30 seconds when the temperature goes above 90°F."
