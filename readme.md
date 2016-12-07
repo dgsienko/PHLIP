@@ -1,6 +1,15 @@
 # README
 This is the repository for the CS 411 (Group 4) project, P.H.L.I.P.
 
+## Overview
+Philips Hue Light Interface Program, or P.H.L.I.P., aims to help you do more with Philip Hue lights. We currently have two modes: Weather Alerts and Audio Visualizer.
+
+### Weather Alerts
+A user sets up an account with his location and can then set up a bunch of weather-based rules. For example, "turn the lights yellow for a minute at sunrise," or "flash the lights red for 30 seconds when the temperature goes above 90°F."
+
+### Audio Visualizer
+ 
+
 ## Depenedencies
 Our project requires the following packages/technologies be installed:
 * [Node.js](https://nodejs.org/en/)
