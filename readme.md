@@ -1,4 +1,4 @@
-# README
+# README 
 This is the repository for the CS 411 (Group 4) project, P.H.L.I.P.
 
 ## Overview
@@ -23,3 +23,6 @@ Our project requires the following packages/technologies be installed:
 * [SciPy](https://www.scipy.org)
 * [PyAudio](https://people.csail.mit.edu/hubert/pyaudio/)
 * [Pydub](http://pydub.com)
+
+## Technologies
+Our project uses a Thin Client, Flask/Python, and MySQL. We used the Flask-MySQL combination because we were more familiar with it than with our alternatives. Having a Thin Client makes sense because, especially in the case of Weather Alerts, the website only needs to be available to manage rules -- the lights can update in the background (the computation is handled on the back-end). 
