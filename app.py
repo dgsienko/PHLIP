@@ -25,6 +25,7 @@ import config
 import time
 import atexit
 
+from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
@@ -83,6 +84,8 @@ def get_setting(keyword):
 		return settings[5]
 	else:
 		return ''
+
+
 
 
 key = get_setting('weather_key')
@@ -146,7 +149,7 @@ def get_location(lid):
 	query = "select city,state from locations where lid = '{0}'"
 	cursor = conn.cursor()
 	cursor.execute(query.format(lid))
-	return cursor.fetchone()[0]
+	return cursor.fetchone()
 
 ## Takes a city,state and returns if a city exists in the database
 def location_exists(city,state):
@@ -167,7 +170,7 @@ def get_lid(city,state):
 
 ## Takes a location id and returns the sunrise/sunset information
 def get_moon(lid):
-	city,state = getLocation(lid)
+	city,state = get_location(lid)
 	req = requests.get("http://api.wunderground.com/api/" + key + "/astronomy/q/"  + state +  "/" + city + ".json").content
 	parsed = json.loads(req)
 	return [ parsed['moon_phase']['sunrise']['hour'], parsed['moon_phase']['sunrise']['minute'], parsed['moon_phase']['sunset']['hour'], parsed['moon_phase']['sunset']['minute'], lid ]
@@ -254,8 +257,8 @@ def get_saved_condition(lid):
 	return cursor.fetchone()[0]
 
 ## Runs a defined alert
-def run_alerts(user_id):
-	lid = get_users_location(user_id)
+def run_alerts():
+	lid = 1
 	condition_id,dt,_,sunrise_hour,sunrise_minute,sunset_hour,sunset_minute,current_temp = get_saved_condition(lid)
 	newTemp = get_temp(lid)
 	temp_alerts = get_temp_alerts()
@@ -279,7 +282,7 @@ def should_temp_rule(prev_temp, new_temp, rule_temp, rule_sign):
 def run_once_a_day():
 	locations = get_locations()
 	for location in locations:
-		set_moon(get_moon(location[0],location[1]))
+		set_moon(get_moon(get_lid(location[0],location[1])))
 
 ## Should a sunrise/sunset rule run?
 def should_sun_rule(lid):
@@ -754,6 +757,24 @@ def music():
 # 	return render_template('music.html')
 
 
+@app.route("/forcetempupdate", methods=['GET'])
+@flask_login.login_required
+def force_temp_update():
+	lids = get_lids()
+	for lid in lids:
+		set_temp(get_temp(lid),lid)
+	return redirect('/')
+
+@app.route("/forcemoonupdate", methods=['GET'])
+@flask_login.login_required
+def force_moon_update():
+	lids = get_lids()
+	print(lids)
+	for lid in lids:
+		set_moon(get_moon(lid))
+	return redirect('/')
+
+
 @app.route("/listmusic", methods=['POST'])
 @flask_login.login_required
 def list_music_post():
@@ -816,6 +837,20 @@ def register_user():
 def unauthorized_handler():
     return render_template('login.html')
 ###
+
+
+
+sched = BlockingScheduler()
+
+sched.add_job(run_once_a_day(), 'cron', month='1-12', day='1-31', hour='1', minute='01')
+
+sched.add_job(
+    func=run_alerts(),
+    trigger=IntervalTrigger(minutes=get_setting('update_speed')),
+    id='getTemp',
+    name='get temp every X min',
+    replace_existing=True)
+sched.start()
 
 
 ## Allows you to run 'python app.py' instead of exporting FLASK_APP
