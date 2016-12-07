@@ -642,7 +642,7 @@ def setup_post():
 		print('PROBLEM:: ' , weather_key,',',music_key,',',update_speed,',',city,',',state,',',new_users)
 		return redirect('/setup')
 	print('CORRECT:: ' , weather_key,',',music_key,',',update_speed,',',city,',',state,',',new_users)
-	return render_template('setup.html', settings=get_settings())
+	return render_template('setup.html', settings=get_settings(), message='')
 
 
 #---#
