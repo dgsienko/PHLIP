@@ -1,3 +1,12 @@
+'''
+CS 411 Group 4
+app.py
+Largely prepared by Jacob Bogdanov
+Commented by Karan Varindani
+'''
+
+
+## Import Statements
 import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
@@ -19,19 +28,20 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 
-
+## Hooks to JavaScript
 '''
 	<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='alerts.js') }}"></script>
 '''
 
+## Flask-MySQL Connector
 mysql = MySQL()
 app = Flask(__name__)
 app.secret_key = config.secret_key
 
 key = config.weatherKey
 
-#These will need to be changed according to your creditionalsb
+## Lookup config file to authenticate database
 app.config['MYSQL_DATABASE_USER'] = config.dbUser
 app.config['MYSQL_DATABASE_PASSWORD'] = config.dbPass
 app.config['MYSQL_DATABASE_DB'] = config.dbName
@@ -39,7 +49,7 @@ app.config['MYSQL_DATABASE_HOST'] = config.dbHost
 app.config['UPLOAD_FOLDER'] = 'static'
 mysql.init_app(app)
 
-#begin code used for login
+## Login code starts here
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
@@ -78,67 +88,44 @@ def request_loader(request):
 	pwd = str(data[0][0] )
 	user.is_authenticated = request.form['password'] == pwd 
 	return user
+###
 
-
-
-# def print_date_time():
-# 	print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
-
-# scheduler = BackgroundScheduler()
-# scheduler.start()
-# scheduler.add_job(
-# 	func=print_date_time,
-# 	trigger=IntervalTrigger(seconds=5),
-# 	id='printing_job',
-# 	name='Print date and time every five seconds',
-# 	replace_existing=True)
-# # Shut down the scheduler when exiting the app
-# atexit.register(lambda: scheduler.shutdown())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## Queries the database for a city,state
 def get_locations():
 	query = "select city,state from locations"
 	cursor = conn.cursor()
 	cursor.execute(query)
 	return cursor.fetchall()
 
+## Queries the database for a location id
 def get_lids():
 	query = "select lid from locations"
 	cursor = conn.cursor()
 	cursor.execute(query)
 	return cursor.fetchall()
 
+## Queries the database for a location id given a user id
 def get_users_location(user_id):
 	query = "select lid from users where user_id = '{0}'"
 	cursor = conn.cursor()
 	cursor.execute(query.format(user_id))
 	return cursor.fetchone()[0]
 
+## Queries the database for a city,state given a location id
 def get_location(lid):
 	query = "select city,state from locations where lid = '{0}'"
 	cursor = conn.cursor()
 	cursor.execute(query.format(lid))
 	return cursor.fetchone()[0]
 
+## Takes a city,state and returns if a city exists in the database
 def location_exists(city,state):
 	query = "select * from locations where city='{0}' and state='{1}'"
 	cursor = conn.cursor()
 	cursor.execute(query.format(city,state))
 	return (cursor.rowcount > 0)
 
+## Takes a city,state and returns an id number (or -1 if nonexistent)
 def get_lid(city,state):
 	query = "select lid from locations where city='{0}' and state='{1}'"
 	cursor = conn.cursor()
@@ -148,18 +135,21 @@ def get_lid(city,state):
 	else:
 		return -1
 
+## Takes a location id and returns the sunrise/sunset information
 def get_moon(lid):
 	city,state = getLocation(lid)
 	req = requests.get("http://api.wunderground.com/api/" + key + "/astronomy/q/"  + state +  "/" + city + ".json").content
 	parsed = json.loads(req)
 	return [ parsed['moon_phase']['sunrise']['hour'], parsed['moon_phase']['sunrise']['minute'], parsed['moon_phase']['sunset']['hour'], parsed['moon_phase']['sunset']['minute'], lid ]
 
+## Takes a location id and returns temperature information
 def get_temp(lid):
 	city,state = getLocation(lid)
 	req = requests.get("http://api.wunderground.com/api/" + key + "/geolookup/conditions/q/"  + state +  "/" + city + ".json").content
 	parsed = json.loads(req)
 	return parsed['current_observation']['temp_f']
 
+## Updates the database with the current sunrise/sunset information
 def set_moon(sunriseH,sunriseM,sunsetH,sunsetM,lid):
 	query1 = "delete from current_conditions where lid='{0}'"
 	cursor = conn.cursor()
@@ -170,13 +160,14 @@ def set_moon(sunriseH,sunriseM,sunsetH,sunsetM,lid):
 	cursor.execute(query2.format(getMoon()))
 	conn.commit()
 
+## Updates the database with the current temperature 
 def set_temp(temp, lid):
 	query = "update current_conditions set temp='{0}' where lid='{1}'"
 	cursor = conn.cursor()
 	cursor.execute(query.format(temp,lid))
 	conn.commit()
 
-
+## Gets the existing rules from the databse
 def get_alert(alert_type,alert_sign,alert_temp):
 	query = "select alert_id from alerts where alert_type = '{0}' and alert_sign='{1}' and alert_temp='{2}'"
 	cursor = conn.cursor()
@@ -186,12 +177,14 @@ def get_alert(alert_type,alert_sign,alert_temp):
 	else:
 		return -1
 
+## Returns a table with all existing rules
 def get_display_alerts():
 	query = 'select u.email, a.alert_type, a.alert_sign, a.alert_temp, l.light_type, l.light_color, l.light_length, a.alert_id from users u, alerts a, light_effects l where l.light_id=a.light_id and u.user_id=a.user_id'
 	cursor = conn.cursor()
 	cursor.execute(query)
 	return cursor.fetchall()
 
+## Create an alert rule based on user input from the HTML
 def create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, length, color):
 	if(light_type == 'flash'):
 		length = 30
@@ -223,12 +216,14 @@ def create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, length
 		conn.commit()
 		print('query finished B')
 
+## Queries the database for the conditions of a given location id
 def get_saved_condition(lid):
 	query = "select * from locations where lid = '{0}'"
 	cursor = conn.cursor()
 	cursor.execute(query.format(lid))
 	return cursor.fetchone()[0]
 
+## Runs a defined alert
 def run_alerts(user_id):
 	lid = get_users_location(user_id)
 	condition_id,dt,_,sunrise_hour,sunrise_minute,sunset_hour,sunset_minute,current_temp = get_saved_condition(lid)
@@ -242,6 +237,7 @@ def run_alerts(user_id):
 	set_temp(newTemp,lid)
 	return 1
 
+## Should a temperature rule run?
 def should_temp_rule(prev_temp, new_temp, rule_temp, rule_sign):
 	if(rule_sign == 1):
 		return (new_temp > rule_temp and prev_temp < rule_temp)
@@ -249,14 +245,13 @@ def should_temp_rule(prev_temp, new_temp, rule_temp, rule_sign):
 		return (new_temp < rule_temp and prev_temp > rule_temp)
 			
 
-
+## Checks sunrise/sunset information daily
 def run_once_a_day():
 	locations = get_locations()
 	for location in locations:
 		set_moon(get_moon(location[0],location[1]))
 
-
-
+## Should a sunrise/sunset rule run?
 def should_sun_rule(lid):
 	_,dt,_,sunrise_hour,sunrise_minute,sunset_hour,sunset_minute,current_temp = get_saved_condition(lid)
 	curr_hr = datetime.datetime.now().time().hour
@@ -268,13 +263,15 @@ def should_sun_rule(lid):
 	else:
 		return 0
 
+## If yes (above), run sunrise/sunset rule
 def run_sun_rule(sign):
 	if(sign != 1 or sign != -1):
 		return -1
 	_,light_id,user_id,alert_type,alert_sign,alert_temp = get_sun_alerts(sign)
 	if(should_sun_rule(get_users_location(user_id))):
 		run_lights(light_id)
-	
+
+## Runs lights given a light id	
 def run_lights(light_id):
 	_,light_type,color,length = get_light_effect(light_id)
 	if(light_type == 'flash'):
@@ -284,6 +281,7 @@ def run_lights(light_id):
 	else:
 		l.onDuration(color,length)
 
+## Runs lights given certain parameters
 def run_lights(light_type, color, length):
 	print('run lights with params:',light_type,',',color,',',length)
 	if(light_type == 'flash'):
@@ -293,38 +291,42 @@ def run_lights(light_type, color, length):
 	else:
 		l.onDuration(color,length)
 
-
+## Get the effects stored for a given light
 def get_light_effect(light_id):
 	query="select * from light_effects where light_id='{0}'"
 	cursor = conn.cursor()
 	cursor.execute(query.format(light_id))
 	return cursor.fetchone()[0]
 
+## Get all alert rules
 def get_alerts():
 	query="select * from alerts"
 	cursor = conn.cursor()
 	cursor.execute(query)
 	return cursor.fetchall()
 
+## Get sunrise/sunset alert rules
 def get_sun_alert(sign):
 	query="select * from alerts where alert_type='sun' and sign='{0}' LIMIT 1"
 	cursor = conn.cursor()
 	cursor.execute(query.format(sign))
 	return cursor.fetchone()[0]
 
+## Get temperature alert rules
 def get_temp_alerts():
 	query="select * from alerts where alert_type='temp'"
 	cursor = conn.cursor()
 	cursor.execute(query)
 	return cursor.fetchall()
 
-
+## Creates a location in the database given a city,state
 def create_location(city,state):
 	query = "insert into locations (city,state) VALUES ('{0}','{1}')"
 	cursor = conn.cursor()
 	cursor.execute(query.format(city.upper(),state.upper()))
 	conn.commit()
 
+## Gets a light id from the database given some parameters
 def get_light_id(light_type,length,color):
 	query="select light_id from light_effects where light_type='{0}' and light_length='{1}' and light_color='{2}'"
 	cursor = conn.cursor()
@@ -334,19 +336,23 @@ def get_light_id(light_type,length,color):
 	else:
 		return -1
 
+## Creates a light effect in the database given some paramterers
 def create_lightEffect(light_type,length,color):
 	query="insert into light_effects (light_type, light_color, light_length) values ('{0}','{1}',{2})"
 	cursor = conn.cursor()
 	cursor.execute(query.format(light_type,color,length))
 	conn.commit()
 
+''' 
 def compare_date(dt,hour,minute):
 	return 1
+'''
 
+## Converts SQL DateTime to a Python timestamp
 def convertSQLDateTimeToTimestamp(value):
     return time.mktime(time.strptime(value, '%Y-%m-%d %H:%M:%S'))
 
-
+## Determines if a rule should be run
 def within_range_after(range_after,curr_hr,curr_min,new_hr,new_min):
 	if(curr_hr == new_hr):
 		return (curr_min+range_after > new_min)
@@ -355,7 +361,7 @@ def within_range_after(range_after,curr_hr,curr_min,new_hr,new_min):
 	else:
 		return False
 
-
+## Checks if users exist
 def exists_users():
 	query="select * from users"
 	cursor=conn.cursor()
@@ -363,12 +369,14 @@ def exists_users():
 	return (cursor.rowcount > 0)
 
 
+## Get light settings from the database
 def get_settings():
 	query='select s.update_speed, s.new_users, s.weather_key, s.music_key, l.city, l.state from settings s, locations l where l.lid = s.lid'
 	cursor=conn.cursor()
 	cursor.execute(query)
 	return cursor.fetchone()
 
+## Get a specific setting from the databased given an input keyword
 def get_setting(keyword):
 	settings = get_settings()
 	if(keyword == 'update_speed'):
@@ -386,6 +394,7 @@ def get_setting(keyword):
 	else:
 		return ''
 
+## Update settings in the databse given parameters
 def update_settings(update_speed,new_users,weather_key,music_key,city,state):
 	lid = get_location(city,state)
 	if(lid == -1):
@@ -396,6 +405,7 @@ def update_settings(update_speed,new_users,weather_key,music_key,city,state):
 	cursor.execute(query.format(update_speed,new_users,weather_key,music_key,lid))
 	cursor.commit()
 
+## Returns settings back to default in the database
 def default_settings():
 	query1 = "delete from settings"
 	query2 = "insert into settings(update_speed,new_users,weather_key,music_key,lid) values(5,1,'weather_key','music_key',1);"
@@ -407,15 +417,16 @@ def default_settings():
 
 
 
-# Use this to check if a email has already been registered
+## Checks if an email has already been registered
 def isEmailUnique(email):
 	cursor = conn.cursor()
 	if cursor.execute("SELECT email FROM users WHERE email = '{0}'".format(email)): 
-		# This means there are greater than zero entries with that email
+		## There are greater than zero entries with that email
 		return False
 	else:
 		return True
 
+## Returns a user id given an email
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
 	cursor.execute("SELECT user_id FROM users WHERE email = '{0}'".format(email))
@@ -424,15 +435,14 @@ def getUserIdFromEmail(email):
 	else:
 		return -1
 
-
+## Deletes an alert from the database given an alert id
 def delete_alert(alert_id):
 	query="delete from alerts where alert_id={0}"
 	cursor = conn.cursor()
 	cursor.execute(query.format(alert_id))
 	conn.commit()
 
-
-
+## Allow new users to register and update settings (or stop new users)
 def allow_new_users():
 	query="select new_users from settings;"
 	cursor = conn.cursor()
@@ -441,17 +451,11 @@ def allow_new_users():
 		return (cursor.fetchone()[0] == 1) 
 	else:
 		return True
+###
 
+# App routes below
 
-
-#
-#
-# different routes
-#
-#
-
-#---#
-
+## Route for home
 @app.route('/', methods=['GET'])
 def index():
 	if(not(exists_users())):
@@ -461,8 +465,7 @@ def index():
 	else:
 		return redirect('/home')
 
-#---#
-
+## Routes to login
 @app.route("/login", methods=['GET'])
 def login():
 	return render_template('login.html')  
@@ -470,9 +473,9 @@ def login():
 
 @app.route("/login", methods=['POST'])
 def login_post():
-	#The request method is POST (page is recieving data)
+	## The request method is POST (page is recieving data)
 	email = flask.request.form['email']
-	cursor = conn.cursor()     #check if email is registered     
+	cursor = conn.cursor()     ## Checks if email is registered     
 	if cursor.execute("SELECT password FROM users WHERE email = '{0}'".format(email)):
 		data = cursor.fetchall()
 		print (data)
@@ -480,16 +483,17 @@ def login_post():
 		if flask.request.form['password'] == pwd:
 			user = User()
 			user.id = email
-			flask_login.login_user(user) #okay login in user
-			return flask.redirect('/home') #protected is a function defined in this file
+			flask_login.login_user(user) ## Okay - login in user
+			return flask.redirect('/home') ## Protected is a function defined in this file
 
-	#information did not match
+	## Information did not match
 	return "<a href='/login'>Try again</a>\
 	</br><a href='/register'>or make an account</a>"
 	return render_template('login.html', supress='True')
 
-#---#
 
+
+## Routes to test the lights
 @app.route("/testlights", methods=['GET'])
 @flask_login.login_required
 def test_lights_get():
@@ -515,9 +519,9 @@ def test_lights_post():
 	run_lights(effect,color,length)
 	return redirect('/addrules')
 
-#---#
 
 
+## Routes to delete a Weather Alert rule
 @app.route("/deletealert", methods=['GET'])
 @flask_login.login_required
 def delete_alert_get():
@@ -541,25 +545,23 @@ def delete_alert_post():
 	delete_alert(alert_id)
 	return redirect('/addrules')
 
-#---#
 
 
+## Route to Home
 @app.route("/home", methods=['GET'])
 @flask_login.login_required
 def home():
 	return render_template('home.html', alert=get_display_alerts())
 
 
-#---#
-
+## Route to logout
 @app.route("/logout", methods=['GET'])
 def logout():
 	flask_login.logout_user()
 	return redirect('/')
 
 
-#---#
-
+## Routes to the Add Rules page
 @app.route("/addrules", methods=['GET'])
 @flask_login.login_required
 def addrules():
@@ -595,9 +597,9 @@ def addrules_post():
 			print('f')
 			alert_sign=int(request.form['sundrop']) # 1, -1
 			print('g')
-			light_type=request.form['suneffect'] # flash loop on
-			dur=int(request.form['sunduration']) # string of number
-			color = request.form['suncolor'] # string
+			light_type=request.form['suneffect'] ## Flash loop on
+			dur=int(request.form['sunduration']) ## String of number
+			color = request.form['suncolor'] ## String
 
 			print('B',user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 			create_alert(user_id, alert_type, alert_sign, 0, light_type, dur, color)
@@ -615,8 +617,8 @@ def addrules_post():
 	return redirect('/addrules')
 
 
-#---#
 
+## Routes to the website settings
 @app.route("/setup", methods=['GET'])
 @flask_login.login_required
 def setup():
@@ -630,8 +632,8 @@ def setup_post():
 	return redirect('/setup')
 
 
-#---#
 
+## Routes to the Audio Visualizer
 @app.route("/music", methods=['GET'])
 @flask_login.login_required
 def music():
@@ -643,9 +645,9 @@ def music():
 def music_post():
 	return render_template('music.html')
 
-#---#
 
 
+## Methods to handle registering users
 @app.route("/register", methods=['GET'])
 def register():
 	if(allow_new_users()):
@@ -677,9 +679,9 @@ def register_user():
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return redirect('/')
+###
 
 
-#---#
-
+## Allows you to run 'python app.py' instead of exporting FLASK_APP
 if __name__ == '__main__':
-	app.run(debug=True, host='0.0.0.0')
+	app.run(debug=True, host='0.0.0.0') ## Host '0.0.0.0' so that it projects on the network 
