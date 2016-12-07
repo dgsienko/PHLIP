@@ -1,5 +1,5 @@
 # README 
-This is the repository for the CS 411 (Group 4) project, P.H.L.I.P. Read on for Documentation.
+This is the repository for the CS 411 (Group 4) project, P.H.L.I.P. Read on for Data Documentation.
 
 ## Overview
 Philips Hue Light Interface Program, or _P.H.L.I.P._, aims to help you do more with Philip Hue lights. We currently have two modes: Weather Alerts and Audio Visualizer.
@@ -16,7 +16,9 @@ Our project requires the following packages/technologies be installed:
 * [Node.js](https://nodejs.org/en/)
 * [hue-cli](https://github.com/bahamas10/hue-cli)
 * [APScheduler](https://apscheduler.readthedocs.io/)
+* [Python-MySQL](https://dev.mysql.com/downloads/connector/python/2.1.html)
 * [Flask](http://flask.pocoo.org)
+* [Flask-Login](https://flask-login.readthedocs.io/en/latest/)
 * [MySQL](http://www.mysql.com)
 * [Flask-MySQL](https://flask-mysql.readthedocs.io/en/latest/)
 * [NumPy](http://www.numpy.org)
