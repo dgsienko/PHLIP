@@ -40,7 +40,7 @@ mysql = MySQL()
 app = Flask(__name__)
 app.secret_key = config.secret_key
 
-key = get_setting('weather_key')
+
 
 ## Lookup config file to authenticate database
 app.config['MYSQL_DATABASE_USER'] = config.dbUser
@@ -57,6 +57,35 @@ login_manager.init_app(app)
 conn = mysql.connect()
 cursor = conn.cursor()
 
+
+
+## Get light settings from the database
+def get_settings():
+	query='select s.update_speed, s.new_users, s.weather_key, s.music_key, l.city, l.state from settings s, locations l where l.lid = s.lid'
+	cursor=conn.cursor()
+	cursor.execute(query)
+	return cursor.fetchone()
+
+## Get a specific setting from the databased given an input keyword
+def get_setting(keyword):
+	settings = get_settings()
+	if(keyword == 'update_speed'):
+		return settings[0]
+	elif(keyword == 'new_users'):
+		return settings[1]
+	elif(keyword == 'weather_key'):
+		return settings[2]
+	elif(keyword == 'music_key'):
+		return settings[3]
+	elif(keyword == 'city'):
+		return settings[4]
+	elif(keyword == 'state'):
+		return settings[5]
+	else:
+		return ''
+
+
+key = get_setting('weather_key')
 
 def getUserList():
 	cursor = conn.cursor()
@@ -399,30 +428,6 @@ def exists_users():
 	return (cursor.rowcount > 0)
 
 
-## Get light settings from the database
-def get_settings():
-	query='select s.update_speed, s.new_users, s.weather_key, s.music_key, l.city, l.state from settings s, locations l where l.lid = s.lid'
-	cursor=conn.cursor()
-	cursor.execute(query)
-	return cursor.fetchone()
-
-## Get a specific setting from the databased given an input keyword
-def get_setting(keyword):
-	settings = get_settings()
-	if(keyword == 'update_speed'):
-		return settings[0]
-	elif(keyword == 'new_users'):
-		return settings[1]
-	elif(keyword == 'weather_key'):
-		return settings[2]
-	elif(keyword == 'music_key'):
-		return settings[3]
-	elif(keyword == 'city'):
-		return settings[4]
-	elif(keyword == 'state'):
-		return settings[5]
-	else:
-		return ''
 
 ## Update settings in the databse given parameters
 def update_settings(update_speed,new_users,weather_key,music_key,city,state):

@@ -4,51 +4,105 @@
 <html>
 	<head>
 	<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
-	<script type="text/javascript" src="{{ url_for('static', filename='alerts.js') }}"></script>
-	<script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='alerts.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
+  <!--   <script src="../static/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="../static/alerts.js"></script> -->
 		<meta charset="UTF-8">
 		<title></title>
-	<style>
-		ul {
-			list-style-type: none;
-			margin: 0;
-			padding: 0;
-			overflow: hidden;
-			background-color: #333;
-		}
-
-		li {
-			float: left;
-		}
-
-		li a {
-			display: block;
-			color: white;
-			text-align: center;
-			padding: 14px 16px;
-			text-decoration: none;
-		}
-
-		/* Change the link color to #111 (black) on hover */
-		li a:hover {
-			background-color: #111;
-		}
-	</style>
-	<ul>
-		<li><a href="/home">Home</a></li>
-		<li><a href="/alerts">Alerts</a></li>
-		<li><a href="/music">Music</a></li>
-		<li><a href="/register">Register</a></li>
-		<li><a href="/login">Login</a></li>
-		<li><a href="/setup">Setup</a></li>
-	</ul>
-
+		<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
+		<!-- <link rel="stylesheet" href="../templated-interphase/css/style.css" />
+		<link rel="stylesheet" href="../templated-interphase/css/style-xlarge.css" /> -->
 	</head>
 	<body>
-	{% if message %}
-	<h3 class='message'> {{message}} </h3>
-	{% endif %}
-		<div>
+		<form action="/addrules" method="POST">
+		<div class="leftinfoA">
+			<h1> Weather Alerts </h1>
+			<img class="image fit" src="../templated-interphase/images/weather.jpg" alt="" />
+			<div id="weatherform">
+			<br>
+			<input type="radio" name="alert_type" id="sunid" value="sun"> Sunrise/Sunset
+			<input type="radio" name="alert_type" id="tempid" value="temp"> Temperature
+			</br>
+			
+			<div id="sunif">
+			<br>
+			At
+			<select name="sundrop" id="sundrop">
+				<option value="1">Sunrise</option>
+				<option value="-1">Sunset</option>
+			</select>
+			</div>
+			<div id="boxa1">
+			<div id="sundo">
+			Do 
+			<select name="suneffect" id="suneffect">
+				<option value="flash">Flash</option>
+				<option value="loop">Color Loop</option>
+				<option value="on">Color</option>
+			</select>
+			</div>
+			<div id="suncol">Color: <input type="text" id='suncolor' name="suncolor"></div>
+			<div id="sunfor">
+			For
+			<select name="sunduration" id="sunduration">
+				<option value="5">5 Seconds</option>
+				<option value="10">10 Seconds</option>
+				<option value="30">30 Seconds</option>
+				<option value="60">1 Minute</option>
+				<option value="300">5 Minutes</option>
+				<option value="-1">Indefinitely</option>
+			</select>
+			</br>
+			</div>
+			<div id="sunalert">For 15 Seconds</div>
+			<div id="suntest"><input type="button" value="Test"></div>
+			</div>
+			<p></p>
+			<div id="sunsub"><input type="submit"></div>
+			
+			
+			<div id="tempif">
+			<br>
+			If temperature goes
+			<select name="tempdrop" id="tempdrop">
+				<option value="1">above</option>
+				<option value="-1">below</option>
+			</select>
+			<input type="text" id="tempval" name="tempval"> ℉,
+			</div>
+			<div id="boxa2">
+			<div id="tempdo">
+			Do 
+			<select name="tempeffect" id="tempeffect">
+				<option value="flash">Flash</option>
+				<option value="loop">Color Loop</option>
+				<option value="on">Color</option>
+			</select>
+			</div>
+	   <!-- <div id="suncol">Color: <input type="text" id='suncolor' name="suncolor"></div> -->
+			<div id="tempcol">Color: <input type="text" id='tempcolor' name="tempcolor"></div>
+			<div id="tempfor">
+			For
+			<select name="tempduration" id="tempduration">
+				<option value="5">5 Seconds</option>
+				<option value="10">10 Seconds</option>
+				<option value="30">30 Seconds</option>
+				<option value="60">1 Minute</option>
+				<option value="300">5 Minutes</option>
+				<option value="-1">Indefinitely</option>
+			</select>
+			</br>
+			</div>
+			<div id="tempalert">For 15 Seconds</div>
+			<div id="temptest"><input type="button" value="Test"></div>
+			</div>
+			<p></p>
+			<div id="tempsub"><input type="submit"></div>
+		</div>	
+		</div>
+		<div class="rightinfoA">
 			{% if alerts %}
 				Current Rules:	
 				<table border='1'>
@@ -91,83 +145,6 @@
 			{% endif %}
 
 		</div>
-		<form action="/addrules" method="POST">
-			<h1> Weather Alerts </h1>
-			
-			<br>
-			<input type="radio" name="alert_type" id="sunid" value="sun"> Sunrise/Sunset
-			<input type="radio" name="alert_type" id="tempid" value="temp"> Temperature
-			</br>
-			
-			<div id="sunif">
-			<br>
-			At
-			<select name="sundrop" id="sundrop">
-				<option value="1">Sunrise</option>
-				<option value="-1">Sunset</option>
-			</select>
-			</div>
-			<div id="sundo">
-			Do 
-			<select name="suneffect" id="suneffect">
-				<option value="flash">Flash</option>
-				<option value="loop">Color Loop</option>
-				<option value="on">Color</option>
-			</select>
-			</div>
-			<div id="suncol">Color: <input type="text" id='suncolor' name="suncolor"></div>
-			<div id="sunfor">
-			For
-			<select name="sunduration" id="sunduration">
-				<option value="5">5 Seconds</option>
-				<option value="10">10 Seconds</option>
-				<option value="30">30 Seconds</option>
-				<option value="60">1 Minute</option>
-				<option value="300">5 Minutes</option>
-				<option value="-1">Indefinitely</option>
-			</select>
-			</br>
-			</div>
-			<div id="sunalert">For 15 Seconds</div>
-			<div id="suntest"><input type="button" value="Test"></div>
-			<div id="sunsub"><input type="submit"></div>
-			
-			
-			<div id="tempif">
-			<br>
-			If temperature goes
-			<select name="tempdrop" id="tempdrop">
-				<option value="1">above</option>
-				<option value="-1">below</option>
-			</select>
-			<input type="text" id="tempval" name="tempval"> ℉,
-			</div>
-			<div id="tempdo">
-			Do 
-			<select name="tempeffect" id="tempeffect">
-				<option value="flash">Flash</option>
-				<option value="loop">Color Loop</option>
-				<option value="on">Color</option>
-			</select>
-			</div>
-	   <!-- <div id="suncol">Color: <input type="text" id='suncolor' name="suncolor"></div> -->
-			<div id="tempcol">Color: <input type="text" id='tempcolor' name="tempcolor"></div>
-			<div id="tempfor">
-			For
-			<select name="tempduration" id="tempduration">
-				<option value="5">5 Seconds</option>
-				<option value="10">10 Seconds</option>
-				<option value="30">30 Seconds</option>
-				<option value="60">1 Minute</option>
-				<option value="300">5 Minutes</option>
-				<option value="-1">Indefinitely</option>
-			</select>
-			</br>
-			</div>
-			<div id="tempalert">For 15 Seconds</div>
-			<div id="temptest"><input type="button" value="Test"></div>
-			<div id="tempsub"><input type="submit"></div>
-			
-		</form>
+	</form>
 	</body>
 </html>

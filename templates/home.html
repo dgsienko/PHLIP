@@ -2,47 +2,52 @@
 <head>
 <script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
-<style>
-  ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #333;
-  }
-
-  li {
-    float: left;
-  }
-
-  li a {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-  }
-
-  /* Change the link color to #111 (black) on hover */
-  li a:hover {
-    background-color: #111;
-  }
-</style>
-<ul>
-  <li><a href="/home">Home</a></li>
-  <li><a href="/alerts">Alerts</a></li>
-  <li><a href="/music">Music</a></li>
-  <li><a href="/register">Register</a></li>
-  <li><a href="/login">Login</a></li>
-  <li><a href="/setup">Setup</a></li>
-</ul>
+<!-- <script src="../static/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="../static/alerts.js"></script> -->
 </head>
+<!-- <link rel="stylesheet" href="../templated-interphase/css/style.css" />
+<link rel="stylesheet" href="../templated-interphase/css/style-xlarge.css" />
+<link rel="stylesheet" href="../templated-interphase/css/stylelight.css" /> -->
+<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
+    <!-- <link rel="stylesheet" href="../templated-interphase/css/style.css" />
+    <link rel="stylesheet" href="../templated-interphase/css/style-xlarge.css" /> -->
   <body>
   {% if message %}
   <h3 class='message'> {{message}} </h3>
   {% endif %}
   
-    <div>
+    <div class='leftinfoH'>
+      <div id="boxh1">
+      <a href='/music'>Go to Music Vis</a>
+      </div>
+      <p></p>
+      <div id="boxh2">
+      <h3>Control Panel</h3>
+      <div>
+        <form method='POST' action='/lights'>
+          <input type="text" id='color' name="color">
+          <input type='submit' name='Custom Color'>
+        </form>
+        <form method='POST' action='/lights'>
+          <input type="hidden" value ='blue' id='color' name="color">
+          <input type='submit' value='Blue'>
+        </form>
+        <form method='POST' action='/lights'>
+          <input type="hidden" value ='red' id='color' name="color">
+          <input type='submit' value='Red'>
+        </form>
+        <form method='POST' action='/lights'>
+          <input type="hidden" value ='white' id='color' name="color">
+          <input type='submit' value='White'>
+        </form>
+
+      </div>
+      </div>
+    </div>
+
+    <div class="rightinfoH">
       {% if alerts %}
         Current Rules:  
         <table border='1'>
@@ -52,7 +57,6 @@
           <th> Lighting Effect </th>
           <th> Lighting Color </th>
           <th> Light Length </th>
-          <th> Delete Alert </th>
           {% for alert in alerts %} 
           {#alert=[email,alert type, +/- 1, temp, effect, color, length] #}
             <tr>
@@ -75,7 +79,6 @@
               <td> {{alert[4]}} </td>
               <td> {{alert[5]}} </td>
               <td> {{alert[6]}} </td>
-              <td> <form method='POST' action='/deletealert'> <input type='hidden' name='alert_id' value='{{alert[7]}}'> <input type="submit" value='Delete'></form></td>
             </tr>
           {% endfor %}
 
@@ -85,41 +88,5 @@
       {% endif %}
 
     </div>
-
-<div class='leftinfo'>
-
-
-<a href='/music'>Go to Music Vis</a>
-
-<h3>Control Panel</h3>
-      <div>
-        <form method='POST' action='/lights'>
-          <input type="text" id='color' name="color">
-          <input type='submit' name='Custom Color'>
-        </form>
-        <form method='POST' action='/lights'>
-          <input type="hidden" value ='blue' id='color' name="color">
-          <input type='submit' value='Blue'>
-        </form>
-        <form method='POST' action='/lights'>
-          <input type="hidden" value ='red' id='color' name="color">
-          <input type='submit' value='Red'>
-        </form>
-        <form method='POST' action='/lights'>
-          <input type="hidden" value ='white' id='color' name="color">
-          <input type='submit' value='White'>
-        </form>
-
-      <a href='/setup'>Setup</a>
-      </div>
-
-</div>
-
-
-
-
-
-
-
-  </body>
+ </body>
 </html>
