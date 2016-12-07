@@ -1,5 +1,53 @@
+<html>
+<head>
+<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
+<!-- <script src="../static/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="../static/alerts.js"></script> -->
+</head>
+<!-- <link rel="stylesheet" href="../templated-interphase/css/style.css" />
+<link rel="stylesheet" href="../templated-interphase/css/style-xlarge.css" />
+<link rel="stylesheet" href="../templated-interphase/css/stylelight.css" /> -->
+<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
+	<!-- <link rel="stylesheet" href="../templated-interphase/css/style.css" />
+	<link rel="stylesheet" href="../templated-interphase/css/style-xlarge.css" /> -->
 
+<style>
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: #333;
+}
 
+li {
+	float: left;
+}
+
+li a {
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+li a:hover {
+	background-color: #111;
+}
+</style>
+<ul>
+	<li><a href="/home">Home</a></li>
+	<li><a href="/addrules">Alerts</a></li>
+	<li><a href="/music">Music</a></li>
+	<li><a href="/setup">Setup</a></li>
+</ul>
+</head>
+<body>
 {% if artist %}
 <h2>{{artist}}</h2>
 {% endif %}
@@ -14,3 +62,5 @@
 
 <a href='/logout'>logout</a><br>
 <a href='/home'>home</a><br>
+</body>
+</html>
