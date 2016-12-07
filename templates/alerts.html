@@ -5,10 +5,14 @@
 	<head>
 	<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='alerts.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
 		<meta charset="UTF-8">
 		<title></title>
 	</head>
 	<body>
+	{% if message %}
+	<h3 class='message'> {{message}} </h3>
+	{% endif %}
 		<div>
 			{% if alerts %}
 				Current Rules:	

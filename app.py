@@ -461,11 +461,11 @@ def allow_new_users():
 @app.route('/', methods=['GET'])
 def index():
 	if(not(exists_users())):
-		return redirect('/register')
+		return render_template('register.html')
 	elif(flask_login.current_user.is_anonymous):
-		return redirect('/login')
+		return render_template('/login', message="Login to continue")
 	else:
-		return redirect('/home')
+		return render_template('home.html', message="Login successful")
 
 ## Routes to login
 @app.route("/login", methods=['GET'])
@@ -486,7 +486,7 @@ def login_post():
 			user = User()
 			user.id = email
 			flask_login.login_user(user) ## Okay - login in user
-			return flask.redirect('/home') ## Protected is a function defined in this file
+			return flask.render_template('home.html', message="Login successful") ## Protected is a function defined in this file
 
 	## Information did not match
 	return "<a href='/login'>Try again</a>\
@@ -499,7 +499,7 @@ def login_post():
 @app.route("/testlights", methods=['GET'])
 @flask_login.login_required
 def test_lights_get():
-	return redirect('/addrules')
+	return render_template('alerts.html')
 
 
 @app.route("/testlights", methods=['POST'])
@@ -517,9 +517,9 @@ def test_lights_post():
 	except:
 		print('not all values filled')
 		print('effect:',effect,", color:",color,", length:",length)
-		return redirect('/addrules')
+		return render_template('alerts.html')
 	run_lights(effect,color,length)
-	return redirect('/addrules')
+	return render_template('alerts.html')
 
 
 
@@ -527,7 +527,7 @@ def test_lights_post():
 @app.route("/deletealert", methods=['GET'])
 @flask_login.login_required
 def delete_alert_get():
-	return redirect('/addrules')
+	return render_template('alerts.html', message="Rule deleted")
 
 
 @app.route("/deletealert", methods=['POST'])
@@ -543,9 +543,9 @@ def delete_alert_post():
 	except:
 		print('Bad Values.')
 		print('alert_id:',alert_id)
-		return redirect('/addrules')
+		return render_html('alerts.html', message="Rule deleted")
 	delete_alert(alert_id)
-	return redirect('/addrules')
+	return render_html('alerts.html', message="Rule deleted")
 
 
 
@@ -560,7 +560,7 @@ def home():
 @app.route("/logout", methods=['GET'])
 def logout():
 	flask_login.logout_user()
-	return redirect('/')
+	return render_template('login.html', message="Successfully logged out")
 
 
 ## Routes to the Add Rules page
@@ -608,15 +608,15 @@ def addrules_post():
 			print('ff')
 		else:
 			print('bad values passed in.')
-			return redirect('/addrules', message='Bad Values!')
+			return render_template('alerts.html', message='Bad Values!')
 
 
 		
 	except:
 		print('C',user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
-		return flask.redirect('/addrules')
-	return redirect('/addrules')
+		return flask.render_template('alerts.html')
+	return flask.render_template('alerts.html')
 
 
 
@@ -643,7 +643,7 @@ def setup_post():
 
 	except:
 		print('PROBLEM:: ' , weather_key,',',music_key,',',update_speed,',',city,',',state,',',new_users)
-		return redirect('/setup')
+		return flask.render_template('setup.html')
 	print('CORRECT:: ' , weather_key,',',music_key,',',update_speed,',',city,',',state,',',new_users)
 	update_settings(update_speed,new_users,weather_key,music_key,city,state)
 	return render_template('setup.html', settings=get_settings(), message='Successfully update settings!')
@@ -682,7 +682,7 @@ def register_user():
 		password=request.form.get('password')
 	except:
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
-		return flask.redirect(flask.url_for('register'))
+		return flask.render_template('register.html') ## This might not work! —Karan
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
@@ -691,12 +691,12 @@ def register_user():
 		user = User()
 		user.id = email
 		flask_login.login_user(user)
-		return redirect('/')
-	return redirect('/register')
+		return render_template('home.html', message="Logged in")
+	return render_template('/register', message="Try again")
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return redirect('/')
+    return render_template('login.html')
 ###
 
 
