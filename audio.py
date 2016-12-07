@@ -135,3 +135,6 @@ def mainRun(fname,threshold):
 	songProcess = multiprocessing.Process(target=play_song,args = (fname, song_ready, color_ready))
 	songProcess.start()  
 	lights.setColor_v2(plan_sec,color_ready,song_ready)
+	
+if __name__ == "__main__":
+	mainRun(sys.argv[1],95)
