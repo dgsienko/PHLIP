@@ -455,6 +455,42 @@ def allow_new_users():
 		return True
 ###
 
+def is_int(num):
+	try:
+		val = int(num)
+	except:
+		return False
+	return True
+
+def is_str(string):
+	try:
+		val = str(string)
+	except:
+		return False
+	return True
+
+
+def validate_int(num):
+	try:
+		val = int(num)
+		return val
+	except:
+		return 0
+	return val
+
+
+def validate_str(string):
+	try:
+		val = str(string)
+		val = val.replace('<','')
+		val = val.replace('>', '')
+		return val
+	except:
+		return ''
+	return val
+
+
+
 # App routes below
 
 ## Route for home
@@ -476,13 +512,13 @@ def login():
 @app.route("/login", methods=['POST'])
 def login_post():
 	## The request method is POST (page is recieving data)
-	email = flask.request.form['email']
+	email = validate_str(flask.request.form['email'])
 	cursor = conn.cursor()     ## Checks if email is registered     
 	if cursor.execute("SELECT password FROM users WHERE email = '{0}'".format(email)):
 		data = cursor.fetchall()
 		print (data)
 		pwd = str(data[0][0] )
-		if flask.request.form['password'] == pwd:
+		if validate_str(flask.request.form['password']) == pwd:
 			user = User()
 			user.id = email
 			flask_login.login_user(user) ## Okay - login in user
@@ -510,9 +546,9 @@ def test_lights_post():
 	color = ''
 	length = ''
 	try:
-		effect = request.form['effect']
-		length = int(request.form['length'])
-		color = request.form['color']
+		effect = validate_str(request.form['effect'])
+		length = validate_int(request.form['length'])
+		color = validate_str(request.form['color'])
 		
 	except:
 		print('not all values filled')
@@ -538,7 +574,7 @@ def delete_alert_post():
 	color = ''
 	length = ''
 	try:
-		alert_id = int(request.form['alert_id'])
+		alert_id = validate_int(request.form['alert_id'])
 		
 	except:
 		print('Bad Values.')
@@ -574,7 +610,7 @@ def addrules():
 @flask_login.login_required
 def addrules_post():
 	try:
-		alert_type=request.form['alert_type'] # sun or temp
+		alert_type=validate_str(request.form['alert_type']) # sun or temp
 		alert_sign = '-'
 		light_type = 0
 		light_type= '-'
@@ -586,22 +622,22 @@ def addrules_post():
 
 		if(alert_type == 'temp'):
 			print('e')
-			alert_sign=int(request.form['tempdrop']) # 1, -1
-			alert_temp=int(request.form['tempval']) # string of number
-			light_type=request.form['tempeffect'] # flash loop on
-			dur=int(request.form['tempduration']) # string of number
-			color = request.form['tempcolor'] # string
+			alert_sign=validate_int(request.form['tempdrop']) # 1, -1
+			alert_temp=validate_int(request.form['tempval']) # string of number
+			light_type=validate_str(request.form['tempeffect']) # flash loop on
+			dur=validate_int(request.form['tempduration']) # string of number
+			color = validate_str(request.form['tempcolor']) # string
 
 			print('A',user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 			create_alert(user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 
 		elif(alert_type == 'sun'):
 			print('f')
-			alert_sign=int(request.form['sundrop']) # 1, -1
+			alert_sign=validate_int(request.form['sundrop']) # 1, -1
 			print('g')
-			light_type=request.form['suneffect'] ## Flash loop on
-			dur=int(request.form['sunduration']) ## String of number
-			color = request.form['suncolor'] ## String
+			light_type=validate_str(request.form['suneffect']) ## Flash loop on
+			dur=validate_int(request.form['sunduration']) ## String of number
+			color = validate_str(request.form['suncolor']) ## String
 
 			print('B',user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 			create_alert(user_id, alert_type, alert_sign, 0, light_type, dur, color)
@@ -631,13 +667,13 @@ def setup():
 @flask_login.login_required
 def setup_post():
 	try:
-		weather_key=request.form.get('weather_key')
-		music_key=request.form.get('music_key')
-		update_speed=request.form.get('update_speed')
-		city=request.form.get('city')
-		state=request.form.get('state')
+		weather_key=validate_str(request.form.get('weather_key'))
+		music_key=validate_str(request.form.get('music_key'))
+		update_speed=validate_str(request.form.get('update_speed'))
+		city=validate_str(request.form.get('city'))
+		state=validate_str(request.form.get('state'))
 		new_users=-1
-		if(request.form.get('new_users')):
+		if(validate_str(request.form.get('new_users'))):
 			new_users=1
 
 
@@ -678,8 +714,8 @@ def register():
 @app.route("/register", methods=['POST'])
 def register_user():
 	try:
-		email=request.form.get('email')
-		password=request.form.get('password')
+		email=validate_str(request.form.get('email'))
+		password=validate_str(request.form.get('password'))
 	except:
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
 		return flask.render_template('register.html') ## This might not work! —Karan
