@@ -800,7 +800,8 @@ def play_music_post():
 		return render_template('music.html')
 	print(song_name)
 	fname = audio.get_song(get_setting('music_key'),song_name,artist_name)
-	audio.mainRun(fname,95)
+	#audio.mainRun(fname,95)
+	os.system('python3 audio.py '+ fname)
 	return render_template('playmusic.html' )
 
 
@@ -821,7 +822,7 @@ def register_user():
 		password=validate_str(request.form.get('password'))
 	except:
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
-		return render_template('register.html') ## This might not work! —Karan
+		return render_template('register.html')
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
