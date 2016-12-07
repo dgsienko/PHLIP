@@ -363,10 +363,47 @@ def exists_users():
 	return (cursor.rowcount > 0)
 
 
-def get_settings(keyword):
-	
+def get_settings():
+	query='select s.update_speed, s.new_users, s.weather_key, s.music_key, l.city, l.state from settings s, locations l where l.lid = s.lid'
+	cursor=conn.cursor()
+	cursor.execute(query)
+	return cursor.fetchone()
 
-	
+def get_setting(keyword):
+	settings = get_settings()
+	if(keyword == 'update_speed'):
+		return settings[0]
+	elif(keyword == 'new_users'):
+		return settings[1]
+	elif(keyword == 'weather_key'):
+		return settings[2]
+	elif(keyword == 'music_key'):
+		return settings[3]
+	elif(keyword == 'city'):
+		return settings[4]
+	elif(keyword == 'state'):
+		return settings[5]
+	else:
+		return ''
+
+def update_settings(update_speed,new_users,weather_key,music_key,city,state):
+	lid = get_location(city,state)
+	if(lid == -1):
+		create_location(city,state)
+		lid = get_location(city,state)
+	query="update settings set update_speed={0} new_users={1} weather_key='{2}' music_key='{3}' lid='{4}'"
+	cursor = conn.cursor()
+	cursor.execute(query.format(update_speed,new_users,weather_key,music_key,lid))
+	cursor.commit()
+
+def default_settings():
+	query1 = "delete from settings"
+	query2 = "insert into settings(update_speed,new_users,weather_key,music_key,lid) values(5,1,'weather_key','music_key',1);"
+	cursor = conn.cursor()
+	cursor.execute(query1)
+	cursor.commit()
+	cursor.execute(query2)
+	cursor.commit()
 
 
 
@@ -390,12 +427,20 @@ def getUserIdFromEmail(email):
 
 def delete_alert(alert_id):
 	query="delete from alerts where alert_id={0}"
+	cursor = conn.cursor()
 	cursor.execute(query.format(alert_id))
 	conn.commit()
 
 
 
-
+def allow_new_users():
+	query="select new_users from settings;"
+	cursor = conn.cursor()
+	cursor.execute(query)
+	if(cursor.rowcount > 0):
+		return (cursor.fetchone()[0] == 1) 
+	else:
+		return True
 
 
 
@@ -575,13 +620,14 @@ def addrules_post():
 @app.route("/setup", methods=['GET'])
 @flask_login.login_required
 def setup():
-	return render_template('setup.html')
+	return render_template('setup.html', settings=get_settings())
 
 
 @app.route("/setup", methods=['POST'])
 @flask_login.login_required
 def setup_post():
-	return render_template('setup.html')
+
+	return redirect('/setup')
 
 
 #---#
@@ -602,26 +648,25 @@ def music_post():
 
 @app.route("/register", methods=['GET'])
 def register():
-	return render_template('register.html', supress='True')
+	if(allow_new_users()):
+		return render_template('register.html', supress='True')
+	else:
+		return '''
+			<h2 class='error'> You are no longer allowed to register for this site. </h2>
+			'''
 
 @app.route("/register", methods=['POST'])
 def register_user():
 	try:
 		email=request.form.get('email')
 		password=request.form.get('password')
-		city=request.form.get('city')
-		state=request.form.get('state')
 	except:
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
-	lid = get_lid(city,state)
-	if lid == -1:
-		create_location(city,state)
-		lid = get_lid(city,state)
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
-		print(cursor.execute("INSERT INTO Users (email, password, lid) VALUES ('{0}', '{1}', '{2}')".format(email, password, lid)))
+		print(cursor.execute("INSERT INTO Users (email, password) VALUES ('{0}', '{1}')".format(email, password)))
 		conn.commit()
 		user = User()
 		user.id = email
@@ -631,7 +676,7 @@ def register_user():
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return '''unauth.'''
+    return redirect('/')
 
 
 #---#

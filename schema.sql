@@ -41,7 +41,7 @@ create table users(
 	user_id int(5) primary key auto_increment not null,
 	email varchar(50) not null,
 	password varchar(50) not null,
-	unique(email),
+	unique(email)
 );
 
 create table alerts (
@@ -72,15 +72,15 @@ create table current_conditions(
 create table settings (
 	setting_id int(5) primary key auto_increment,
 	update_speed int(5),
-	new_users int(1) defaut 1,
+	new_users int(1),
 	weather_key varchar(100),
-	music_key varchar(100)
+	music_key varchar(100),
 	lid int(5),
 	FOREIGN KEY (lid) REFERENCES locations(lid)
 );
 
 insert into locations(city,state) values('BOSTON','MA');
-insert into settings(update_speed,weather_key,music_key,lid) values(5,'weather_key','music_key',1);
+insert into settings(update_speed,new_users,weather_key,music_key,lid) values(5,1,'weather_key','music_key',1);
 
 
 
