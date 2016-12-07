@@ -18,6 +18,7 @@ import json
 import datetime
 
 import lights as l
+import audio
 import config
 
 
@@ -396,14 +397,15 @@ def get_setting(keyword):
 
 ## Update settings in the databse given parameters
 def update_settings(update_speed,new_users,weather_key,music_key,city,state):
-	lid = get_location(city,state)
+	lid = get_lid(city,state)
 	if(lid == -1):
 		create_location(city,state)
-		lid = get_location(city,state)
-	query="update settings set update_speed={0} new_users={1} weather_key='{2}' music_key='{3}' lid='{4}'"
+		lid = get_lid(city,state)
+	query="update settings set update_speed={0}, new_users={1}, weather_key='{2}', music_key='{3}', lid={4}"
+	print(query.format(update_speed,new_users,weather_key,music_key,lid))
 	cursor = conn.cursor()
 	cursor.execute(query.format(update_speed,new_users,weather_key,music_key,lid))
-	cursor.commit()
+	conn.commit()
 
 ## Returns settings back to default in the database
 def default_settings():
@@ -411,9 +413,9 @@ def default_settings():
 	query2 = "insert into settings(update_speed,new_users,weather_key,music_key,lid) values(5,1,'weather_key','music_key',1);"
 	cursor = conn.cursor()
 	cursor.execute(query1)
-	cursor.commit()
+	conn.commit()
 	cursor.execute(query2)
-	cursor.commit()
+	conn.commit()
 
 
 
@@ -628,8 +630,23 @@ def setup():
 @app.route("/setup", methods=['POST'])
 @flask_login.login_required
 def setup_post():
+	try:
+		weather_key=request.form.get('weather_key')
+		music_key=request.form.get('music_key')
+		update_speed=request.form.get('update_speed')
+		city=request.form.get('city')
+		state=request.form.get('state')
+		new_users=-1
+		if(request.form.get('new_users')):
+			new_users=1
 
-	return redirect('/setup')
+
+	except:
+		print('PROBLEM:: ' , weather_key,',',music_key,',',update_speed,',',city,',',state,',',new_users)
+		return redirect('/setup')
+	print('CORRECT:: ' , weather_key,',',music_key,',',update_speed,',',city,',',state,',',new_users)
+	update_settings(update_speed,new_users,weather_key,music_key,city,state)
+	return render_template('setup.html', settings=get_settings(), message='Successfully update settings!')
 
 
 
@@ -637,6 +654,7 @@ def setup_post():
 @app.route("/music", methods=['GET'])
 @flask_login.login_required
 def music():
+	audio.mainRun('music/The.Madpix.Project - Liquid Blue.wav',95)
 	return render_template('music.html')
 
 

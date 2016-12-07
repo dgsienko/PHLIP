@@ -2,8 +2,6 @@ import os
 import time
 import random
 
-
-
 def reset():
 	os.system('hue lights all white')
 	print('reset lights')
@@ -20,7 +18,6 @@ def setColor_v2(plan_sec,color_ready,song_ready):
 	for i in range(1,len(plan_sec)):
 		os.system('hue lights all ' + randomHex())
 		time.sleep(plan_sec[i]-plan_sec[i-1])
-
 
 def flash(color):
 	setColor(color)
@@ -53,8 +50,6 @@ def cycleDuration(color, sec):
 		reset()
 	return 1
 
-
-
 # https://pythonjunkie.wordpress.com/2012/07/19/convert-hex-color-values-to-rgb-in-python/
 def hex_to_rgb(value):
 	value = value.lstrip('#')
@@ -69,5 +64,23 @@ def randomHex():
     	choice = random.choice(hexVal)
     	return choice
 
-
-
+def invertHex_primer(hexnum):
+        #Invert a hex number
+        inverse = hex(abs(int(hexnum, 16) - 255))[2:] 
+        #If the number is single digit add a preceding zero
+        if len(inverse) == 1: 
+        inverse = '0'+inverse
+        return inverse
+    
+def hexInvert_main(hexnum):
+        #define an empty string for new hex
+        inverse = "" 
+        #if the input hex is RGB
+        if len(hexnum) == 6: 
+                R = hexnum[:2]
+                G = hexnum[2:4]
+                B = hexnum[4:]
+        inverse = inverse + invertHex_primer(R)
+        inverse = inverse + invertHex_primer(G)
+        inverse = inverse + invertHex_primer(B)
+        return inverse.upper()
