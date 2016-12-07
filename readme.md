@@ -8,6 +8,7 @@ Philips Hue Light Interface Program, or P.H.L.I.P., aims to help you do more wit
 A user sets up an account with his location and can then set up a bunch of weather-based rules. For example, "turn the lights yellow for a minute at sunrise," or "flash the lights red for 30 seconds when the temperature goes above 90°F."
 
 ### Audio Visualizer
+A user chooses a song from Jamendo to play, and, via audio analysis and light scheduling, the song is played with an accompanying audio visualization using the Hue lights.  
  
 
 ## Depenedencies
