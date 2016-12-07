@@ -7,11 +7,26 @@ create table lights (
 	lamp_id int(5) primary key not null
 );
 
+insert into lights (lamp_id) values (9);
+insert into lights (lamp_id) values (10);
+insert into lights (lamp_id) values (11);
+insert into lights (lamp_id) values (12);
+insert into lights (lamp_id) values (13);
+insert into lights (lamp_id) values (14);
+insert into lights (lamp_id) values (15);
+insert into lights (lamp_id) values (16);
+insert into lights (lamp_id) values (17);
+
+
+
 create table groups (
 	group_id int(5) primary key not null auto_increment,
 	group_name varchar(30) not null,
 	unique(group_name)
 );
+
+insert into groups (group_name) values ('bedroom');
+insert into groups (group_name) values ('basement');
 
 create table light_groups(
 	group_id int(5) not null,
@@ -21,6 +36,19 @@ create table light_groups(
 	FOREIGN KEY (group_id) REFERENCES groups(group_id)
 
 );
+
+
+insert into light_groups (group_id, lamp_id) values (1, 9);
+insert into light_groups (group_id, lamp_id) values (1, 10);
+insert into light_groups (group_id, lamp_id) values (1, 11);
+insert into light_groups (group_id, lamp_id) values (1, 12);
+insert into light_groups (group_id, lamp_id) values (1, 13);
+insert into light_groups (group_id, lamp_id) values (1, 14);
+
+insert into light_groups (group_id, lamp_id) values (2, 15);
+insert into light_groups (group_id, lamp_id) values (2, 16);
+insert into light_groups (group_id, lamp_id) values (2, 17);
+
 
 create table light_effects(
 	light_id int(5) primary key auto_increment not null,
@@ -81,6 +109,7 @@ create table settings (
 
 insert into locations(city,state) values('BOSTON','MA');
 insert into settings(update_speed,new_users,weather_key,music_key,lid) values(5,1,'weather_key','music_key',1);
+
 
 
 

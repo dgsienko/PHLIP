@@ -3,6 +3,7 @@ import time
 import random
 
 def reset():
+	os.system('hue lights all clear')
 	os.system('hue lights all white')
 	print('reset lights')
 	return 1

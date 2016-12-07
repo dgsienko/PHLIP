@@ -7,12 +7,78 @@
   {% if message %}
   <h3 class='message'> {{message}} </h3>
   {% endif %}
-  <div>
-    
-  <a href='/login'>login</a><br>
-  <a href='/register'>register</a><br>
-  <a href='/home'>home</a><br>
-  </div>
+  
+    <div>
+      {% if alerts %}
+        Current Rules:  
+        <table border='1'>
+          <th> User </th>
+          <th> Alert Type </th>
+          <th> Temp (F)</th>
+          <th> Lighting Effect </th>
+          <th> Lighting Color </th>
+          <th> Light Length </th>
+          <th> Delete Alert </th>
+          {% for alert in alerts %} 
+          {#alert=[email,alert type, +/- 1, temp, effect, color, length] #}
+            <tr>
+              <td> {{alert[0]}} </td>
+              {% if alert[1] == 'temp' %}
+                {% if alert[2] == 1 %}
+                  <td> Above Temp </td>
+                {% else %}
+                  <td> Below Temp </td>
+                {% endif %}
+                <td> {{alert[3]}} </td>
+              {% else %}
+                {% if alert[2] == 1 %}
+                  <td> Sunrise </td>
+                {% else %}
+                  <td> Sunset </td>
+                {% endif %}
+                <td> -- </td>
+              {% endif %}
+              <td> {{alert[4]}} </td>
+              <td> {{alert[5]}} </td>
+              <td> {{alert[6]}} </td>
+              <td> <form method='POST' action='/deletealert'> <input type='hidden' name='alert_id' value='{{alert[7]}}'> <input type="submit" value='Delete'></form></td>
+            </tr>
+          {% endfor %}
+
+        </table>
+      {% else %}
+        You currently have no rules.
+      {% endif %}
+
+    </div>
+
+<div class='leftinfo'>
+
+
+<a href='/music'>Go to Music Vis</a>
+
+<h3>Control Panel</h3>
+      <div>
+        <form method='POST' action='/lights'>
+          <input type="text" id='color' name="color">
+          <input type='submit' name='Custom Color'>
+        </form>
+        <form method='POST' action='/lights'>
+          <input type="hidden" value ='blue' id='color' name="color">
+          <input type='submit' value='Blue'>
+        </form>
+        <form method='POST' action='/lights'>
+          <input type="hidden" value ='red' id='color' name="color">
+          <input type='submit' value='Red'>
+        </form>
+        <form method='POST' action='/lights'>
+          <input type="hidden" value ='white' id='color' name="color">
+          <input type='submit' value='White'>
+        </form>
+
+      </div>
+
+</div>
 
 
 
@@ -20,41 +86,5 @@
 
 
 
-
-
-
-
-
-  <br><br><br><br><br><br><br><br>
-    <form action="." method="POST">
-    	<h1> Basement Lights </h1>
-    	
-    	<br>
-    	<input type="submit" name="button" value="Off">
-      	<input type="submit" name="button" value="On">
-      	</br>
-      	
-      	<br>
-    	<input type="text" name="bri">
-      	<input type="submit" name="button" value="Brightness">
-      	<input type="submit" name="button" value="Max">
-      	</br>
-      	
-      	<br>
-    	<input type="text" name="col">
-      	<input type="submit" name="button" value="Colour">
-      	<input type="submit" name="button" value="White">
-      	<input type="submit" name="button" value="Yellow">
-      	<input type="submit" name="button" value="Blue">
-      	<input type="submit" name="button" value="Red">
-      	</br>
-      	
-      	<br>
-      	<input type="submit" name="button" value="Colour Loop">
-      	<input type="submit" name="button" value="Flash">
-      	<input type="submit" name="button" value="Stop">
-      	</br>
-      	
-    </form>
   </body>
 </html>

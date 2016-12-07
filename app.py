@@ -344,6 +344,35 @@ def create_lightEffect(light_type,length,color):
 	cursor.execute(query.format(light_type,color,length))
 	conn.commit()
 
+
+
+def get_all_lights():
+	query="select lamp_id from lights"
+	cursor = conn.cursor()
+	cursor.execute(query)
+	return cursor.fetchall()
+
+def get_lights_by_group_id(group_id):
+	query="select lamp_id from light_groups where group_id={0}"
+	cursor = conn.cursor()
+	cursor.execute(query.format(group_id))
+	return cursor.fetchall()
+
+def get_group_names():
+	query="select group_name from groups"
+	cursor = conn.cursor()
+	cursor.execute(query)
+	return cursor.fetchall()
+
+def get_group_id_by_name(group_name):
+	query="select group_id from groups where group_name={0}"
+	cursor = conn.cursor()
+	cursor.execute(query.format(group_name))
+	return cursor.fetchone()[0]
+
+
+
+
 ''' 
 def compare_date(dt,hour,minute):
 	return 1
@@ -496,18 +525,21 @@ def validate_str(string):
 ## Route for home
 @app.route('/', methods=['GET'])
 def index():
+	print(get_all_lights())
 	if(not(exists_users())):
 		return render_template('register.html')
 	elif(flask_login.current_user.is_anonymous):
 		return render_template('/login', message="Login to continue")
 	else:
-		return render_template('home.html', message="Login successful")
+		return render_template('home.html', message="Login successful", alerts=get_display_alerts())
 
 ## Routes to login
 @app.route("/login", methods=['GET'])
 def login():
-	return render_template('login.html')  
-    
+	if(lask_login.current_user.is_anonymous):
+		return render_template('login.html') 
+	else:
+		return redirect('/home')
 
 @app.route("/login", methods=['POST'])
 def login_post():
@@ -522,7 +554,7 @@ def login_post():
 			user = User()
 			user.id = email
 			flask_login.login_user(user) ## Okay - login in user
-			return flask.render_template('home.html', message="Login successful") ## Protected is a function defined in this file
+			return flask.render_template('home.html', message="Login successful", alerts=get_display_alerts() ) ## Protected is a function defined in this file
 
 	## Information did not match
 	return "<a href='/login'>Try again</a>\
@@ -557,6 +589,21 @@ def test_lights_post():
 	run_lights(effect,color,length)
 	return render_template('alerts.html')
 
+@app.route("/lights", methods=['POST'])
+@flask_login.login_required
+def lights_post():
+	print('/lights post')
+	color = ''
+	try:
+		color = validate_str(request.form['color'])
+		
+	except:
+		print('not all values filled')
+		print("color:",color)
+		return render_template('home.html', message='Failed to update lights!!!', alerts=get_display_alerts())
+	run_lights('on',color,-1)
+	return render_template('home.html', message='Lights updated!', alerts=get_display_alerts())
+
 
 
 ## Routes to delete a Weather Alert rule
@@ -589,7 +636,7 @@ def delete_alert_post():
 @app.route("/home", methods=['GET'])
 @flask_login.login_required
 def home():
-	return render_template('home.html', alert=get_display_alerts())
+	return render_template('home.html', alerts=get_display_alerts())
 
 
 ## Route to logout
@@ -651,8 +698,8 @@ def addrules_post():
 	except:
 		print('C',user_id, alert_type, alert_sign, alert_temp, light_type, dur, color)
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
-		return flask.render_template('alerts.html')
-	return flask.render_template('alerts.html')
+		return flask.render_template('alerts.html', alerts=get_display_alerts())
+	return flask.render_template('alerts.html', alerts=get_display_alerts())
 
 
 
@@ -727,7 +774,7 @@ def register_user():
 		user = User()
 		user.id = email
 		flask_login.login_user(user)
-		return render_template('home.html', message="Logged in")
+		return render_template('home.html', message="Logged in", alerts=get_display_alerts())
 	return render_template('/register', message="Try again")
 
 @login_manager.unauthorized_handler
