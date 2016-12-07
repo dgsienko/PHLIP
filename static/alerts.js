@@ -1,3 +1,11 @@
+/*
+ * CS 411 Group 4
+ * alerts.js
+ * Shows and hides a bunch of divs in the HTML
+ * Inelegant code, hastily prepared by Karan Varindani
+ */
+
+// Hides everything but the two radio buttons to start
 $(document).ready(function() {
 	$('#sunif').hide(); 
 	$('#sundo').hide();
@@ -15,7 +23,8 @@ $(document).ready(function() {
 	$('#temptest').hide(); 
 	
 	$('input[type="radio"]').click(function() {
-		 if($(this).attr('id') == 'sunid') {
+		// Functionality for Sunrise/Sunset radio 
+		if($(this).attr('id') == 'sunid') {
 				$('#tempif').hide(); 
 				$('#tempdo').hide(); 
 				$('#tempcol').hide();
@@ -30,7 +39,7 @@ $(document).ready(function() {
 				$('#sunalert').show();
 				$('#sunsub').show();
 				$('#suntest').show(); 
-				$('#suneffect').change(function() {
+				$('#suneffect').change(function() { // Handler for the Effects drop-down
 					if($(this).val() == 'flash') {
 						$('#suncol').show();
 						$('#sunalert').show();
@@ -47,6 +56,7 @@ $(document).ready(function() {
 						$('#sunalert').hide();
 					}
 				});
+				// Handler for the Test button (test lights)
 				$( "#suntest" ).click(function() {
 					testcolor = $( "#suncolor" ).val();
 					testlength = $( "#sunduration" ).val();
@@ -55,6 +65,7 @@ $(document).ready(function() {
 				});
 				     
 		 }
+		 // Functionality for Temperature radio
 		 if($(this).attr('id') == 'tempid') {
 				$('#sunif').hide();
 				$('#sundo').hide();
@@ -66,13 +77,13 @@ $(document).ready(function() {
 
 				$('#tempif').show();   
 				$('input[name="tempval"]').keyup(function(){
-					if($(this).val().length) {
+					if($(this).val().length) { // Checks to see if tempval has a value
 						$('#tempcol').show();
 						$('#tempdo').show();
 						$('#tempalert').show();
 						$('#tempsub').show();
 						$('#temptest').show();   						
-						$('#tempeffect').change(function(){
+						$('#tempeffect').change(function(){ // Handler for the Effects drop-down
 							if($(this).val() == 'flash') {
 								$('#tempcol').show();
 								$('#tempalert').show();
@@ -98,6 +109,7 @@ $(document).ready(function() {
 						$('#temptest').hide();
 					}
 				}); 
+				// Handler for the Test button (test lights)
 				$( "#temptest" ).click(function() {
 					testcolor = $( "#tempcolor" ).val();
 					testlength = $( "#tempduration" ).val();
