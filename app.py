@@ -831,7 +831,7 @@ def play_music_post():
 	#audio.mainRun(fname,95)
 	print (fname)
 	os.system('python audio.py '+ fname)
-	return render_template('playmusic.html' )
+	return redirect('/music')
 
 
 ## Methods to handle registering users
