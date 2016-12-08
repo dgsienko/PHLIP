@@ -828,8 +828,9 @@ def play_music_post():
 		return render_template('music.html')
 	print(song_name)
 	fname = audio.get_song(get_setting('music_key'),song_name,artist_name)
-	audio.mainRun(fname,95)
-	#os.system('python3 audio.py '+ fname)
+	#audio.mainRun(fname,95)
+	print (fname)
+	os.system('python audio.py '+ fname)
 	return render_template('playmusic.html' )
 
 
