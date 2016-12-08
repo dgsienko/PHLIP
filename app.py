@@ -878,24 +878,24 @@ def unauthorized_handler():
 
 
 
-# def test1():
-# 	print('test1')
-# def test2():
-# 	print('test2')
+def test1():
+	print('test1')
+def test2():
+	print('test2')
 
-# def print_date_time():
-#     print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
+def print_date_time():
+    print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
 
-# scheduler = BackgroundScheduler()
-# scheduler.start()
-# scheduler.add_job(
-#     func=run_alerts,
-#     trigger=IntervalTrigger(seconds=get_setting('update_speed')),
-#     id='printing_job',
-#     name='Print date and time every five seconds',
-#     replace_existing=True)
-# # Shut down the scheduler when exiting the app
-# atexit.register(lambda: scheduler.shutdown())
+scheduler = BackgroundScheduler()
+scheduler.start()
+scheduler.add_job(
+    func=run_alerts,
+    trigger=IntervalTrigger(minutes=get_setting('update_speed')),
+    id='printing_job',
+    name='Print date and time every five seconds',
+    replace_existing=True)
+# Shut down the scheduler when exiting the app
+atexit.register(lambda: scheduler.shutdown())
 
 
 
