@@ -49,10 +49,7 @@ def get_song(cid,song_name,artist_name):
 	url = "https://api.jamendo.com/v3.0/tracks/file/?client_id="+str(cid)+"&id="+str(song_id)+"&action=download"
 	#Names downloaded file, as of now downloads to desktop
 	cwd = os.getcwd()
-<<<<<<< HEAD
-	artist_name = artist_name.replace(" ", "")
-	song_name = song_name.replace(" ", "")
-=======
+
 	artist_name=artist_name.replace(' ', '')
 	artist_name=artist_name.replace('(', '')
 	artist_name=artist_name.replace(')', '')
@@ -66,7 +63,7 @@ def get_song(cid,song_name,artist_name):
 	song_name=song_name.replace('.', '')
 	song_name=song_name.replace('\'', '')
 	song_name=song_name.replace('"', '')
->>>>>>> b4fb1826fd34a1ef34e556f201d0ee3e755db52f
+
 	fname = str(cwd) + "/music/" + str(artist_name)+"-"+str(song_name)+".mp3" 
 
 	#Downloads song 
