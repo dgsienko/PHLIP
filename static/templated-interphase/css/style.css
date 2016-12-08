@@ -9,6 +9,14 @@
 */
 
 /* Basic */
+	.selected {
+		background-color: #34935a;
+	}
+
+	.error {
+		color:red;
+	}
+
 	#weatherform {
 		width: 100%;
 	}

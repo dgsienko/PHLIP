@@ -62,7 +62,7 @@ cursor = conn.cursor()
 
 ## Get light settings from the database
 def get_settings():
-	query='select s.update_speed, s.new_users, s.weather_key, s.music_key, l.city, l.state from settings s, locations l where l.lid = s.lid'
+	query='select s.update_speed, s.new_users, s.weather_key, s.music_key, l.city, l.state, s.lid from settings s, locations l where l.lid = s.lid'
 	cursor=conn.cursor()
 	cursor.execute(query)
 	return cursor.fetchone()
@@ -82,6 +82,8 @@ def get_setting(keyword):
 		return settings[4]
 	elif(keyword == 'state'):
 		return settings[5]
+	elif(keyword == 'lid'):
+		return settings[6]
 	else:
 		return ''
 
@@ -149,7 +151,15 @@ def get_location(lid):
 	query = "select city,state from locations where lid = '{0}'"
 	cursor = conn.cursor()
 	cursor.execute(query.format(lid))
-	return cursor.fetchone()
+	city = ''
+	state = ''
+	try:
+		ret = cursor.fetchone()
+		city = ret[0]
+		state = ret[1]
+	except:
+		return city, state
+	return city, state
 
 ## Takes a city,state and returns if a city exists in the database
 def location_exists(city,state):
@@ -171,16 +181,35 @@ def get_lid(city,state):
 ## Takes a location id and returns the sunrise/sunset information
 def get_moon(lid):
 	city,state = get_location(lid)
-	req = requests.get("http://api.wunderground.com/api/" + key + "/astronomy/q/"  + state +  "/" + city + ".json").content
-	parsed = json.loads(req)
-	return [ parsed['moon_phase']['sunrise']['hour'], parsed['moon_phase']['sunrise']['minute'], parsed['moon_phase']['sunset']['hour'], parsed['moon_phase']['sunset']['minute'], lid ]
+	req = requests.get("http://api.wunderground.com/api/" + get_setting('weather_key') + "/astronomy/q/"  + state +  "/" + city + ".json").content
+	print(req)
+	parsed = json.loads(req.decode())
+	a=0
+	b=0
+	c=0
+	d=0
+	try:
+		a = parsed['moon_phase']['sunrise']['hour']
+		b = parsed['moon_phase']['sunrise']['minute']
+		c = parsed['moon_phase']['sunset']['hour']
+		d = parsed['moon_phase']['sunset']['minute']
+	except:
+		return a,b,c,d,lid
+	return a,b,c,d,lid
+
+
 
 ## Takes a location id and returns temperature information
 def get_temp(lid):
-	city,state = getLocation(lid)
-	req = requests.get("http://api.wunderground.com/api/" + key + "/geolookup/conditions/q/"  + state +  "/" + city + ".json").content
-	parsed = json.loads(req)
-	return parsed['current_observation']['temp_f']
+	city,state = get_location(lid)
+	req = requests.get("http://api.wunderground.com/api/" + get_setting('weather_key') + "/geolookup/conditions/q/"  + state +  "/" + city + ".json").content
+	parsed = json.loads(req.decode())
+	temp = 0
+	try:
+		temp = parsed['current_observation']['temp_f']
+	except:
+		return temp
+	return temp
 
 ## Updates the database with the current sunrise/sunset information
 def set_moon(sunriseH,sunriseM,sunsetH,sunsetM,lid):
@@ -190,12 +219,13 @@ def set_moon(sunriseH,sunriseM,sunsetH,sunsetM,lid):
 	conn.commit()
 
 	query2 = "insert into current_conditions (sunrise_hour, sunrise_minute, sunset_hour, sunset_minute,lid) VALUES ('{0}','{1}','{2}','{3}', '{4}')"
-	cursor.execute(query2.format(getMoon()))
+	a,b,c,d,lid = get_moon(get_setting('lid'))
+	cursor.execute(query2.format(a,b,c,d,lid))
 	conn.commit()
 
 ## Updates the database with the current temperature 
 def set_temp(temp, lid):
-	query = "update current_conditions set temp='{0}' where lid='{1}'"
+	query = "update current_conditions set current_temp='{0}' where lid='{1}'"
 	cursor = conn.cursor()
 	cursor.execute(query.format(temp,lid))
 	conn.commit()
@@ -258,8 +288,8 @@ def get_saved_condition(lid):
 
 ## Runs a defined alert
 def run_alerts():
-	lid = 1
-	condition_id,dt,_,sunrise_hour,sunrise_minute,sunset_hour,sunset_minute,current_temp = get_saved_condition(lid)
+	lid = get_setting('lid')
+	condition_id,dt,X,sunrise_hour,sunrise_minute,sunset_hour,sunset_minute,current_temp = get_saved_condition(lid)
 	newTemp = get_temp(lid)
 	temp_alerts = get_temp_alerts()
 	for temp_alert in temp_alerts:
@@ -280,9 +310,8 @@ def should_temp_rule(prev_temp, new_temp, rule_temp, rule_sign):
 
 ## Checks sunrise/sunset information daily
 def run_once_a_day():
-	locations = get_locations()
-	for location in locations:
-		set_moon(get_moon(get_lid(location[0],location[1])))
+	a,b,c,d,lid = get_moon(get_setting('lid'))
+	set_moon(a,b,c,d,lid)
 
 ## Should a sunrise/sunset rule run?
 def should_sun_rule(lid):
@@ -567,7 +596,6 @@ def login_post():
 	## Information did not match
 	return "<a href='/login'>Try again</a>\
 	</br><a href='/register'>or make an account</a>"
-	return render_template('login.html', supress='True')
 
 
 
@@ -575,7 +603,7 @@ def login_post():
 @app.route("/testlights", methods=['GET'])
 @flask_login.login_required
 def test_lights_get():
-	return render_template('alerts.html')
+	return redirect('/home')
 
 
 @app.route("/testlights", methods=['POST'])
@@ -593,9 +621,9 @@ def test_lights_post():
 	except:
 		print('not all values filled')
 		print('effect:',effect,", color:",color,", length:",length)
-		return render_template('alerts.html')
+		return redirect('/addrules')
 	run_lights(effect,color,length)
-	return render_template('alerts.html')
+	return redirect('/addrules')
 
 @app.route("/lights", methods=['POST'])
 @flask_login.login_required
@@ -608,7 +636,7 @@ def lights_post():
 	except:
 		print('not all values filled')
 		print("color:",color)
-		return render_template('home.html', message='Failed to update lights!!!', alerts=get_display_alerts())
+		return render_template('home.html', message='Failed to update lights!!', alerts=get_display_alerts())
 	run_lights('on',color,-1)
 	return render_template('home.html', message='Lights updated!', alerts=get_display_alerts())
 
@@ -618,7 +646,7 @@ def lights_post():
 @app.route("/deletealert", methods=['GET'])
 @flask_login.login_required
 def delete_alert_get():
-	return render_template('alerts.html', message="Rule deleted")
+	return render_template('alerts.html',alerts=get_display_alerts())
 
 
 @app.route("/deletealert", methods=['POST'])
@@ -634,9 +662,9 @@ def delete_alert_post():
 	except:
 		print('Bad Values.')
 		print('alert_id:',alert_id)
-		return render_html('alerts.html', message="Rule deleted")
+		return render_template('alerts.html', message="Rule Failed to Delete", alerts=get_display_alerts())
 	delete_alert(alert_id)
-	return render_html('alerts.html', message="Rule deleted")
+	return render_template('alerts.html', message="Rule deleted", alerts=get_display_alerts())
 
 
 
@@ -728,7 +756,7 @@ def setup_post():
 		city=validate_str(request.form.get('city'))
 		state=validate_str(request.form.get('state'))
 		new_users=-1
-		if(validate_str(request.form.get('new_users'))):
+		if(request.form.get('new_users')):
 			new_users=1
 
 
@@ -760,18 +788,16 @@ def music():
 @app.route("/forcetempupdate", methods=['GET'])
 @flask_login.login_required
 def force_temp_update():
-	lids = get_lids()
-	for lid in lids:
-		set_temp(get_temp(lid),lid)
+	lid = get_setting('lid')
+	set_temp(get_temp(lid),lid)
 	return redirect('/')
 
 @app.route("/forcemoonupdate", methods=['GET'])
 @flask_login.login_required
 def force_moon_update():
-	lids = get_lids()
-	print(lids)
-	for lid in lids:
-		set_moon(get_moon(lid))
+	lid = get_setting('lid')
+	a,b,c,d,lid = get_moon(lid)
+	set_moon(a,b,c,d,lid)
 	return redirect('/')
 
 
@@ -817,6 +843,10 @@ def register():
 
 @app.route("/register", methods=['POST'])
 def register_user():
+	if(not(allow_new_users())):
+		return '''
+			<h2 class='error'> You are no longer allowed to register for this site. </h2>
+			'''
 	try:
 		email=validate_str(request.form.get('email'))
 		password=validate_str(request.form.get('password'))
@@ -841,17 +871,26 @@ def unauthorized_handler():
 
 
 
-sched = BlockingScheduler()
 
-sched.add_job(run_once_a_day(), 'cron', month='1-12', day='1-31', hour='1', minute='01')
+# def test1():
+# 	print('test1')
+# def test2():
+# 	print('test2')
 
-sched.add_job(
-    func=run_alerts(),
-    trigger=IntervalTrigger(minutes=get_setting('update_speed')),
-    id='getTemp',
-    name='get temp every X min',
+# def print_date_time():
+#     print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
+
+scheduler = BackgroundScheduler()
+scheduler.start()
+scheduler.add_job(
+    func=run_alerts,
+    trigger=IntervalTrigger(seconds=get_setting('update_speed')),
+    id='printing_job',
+    name='Print date and time every five seconds',
     replace_existing=True)
-sched.start()
+# Shut down the scheduler when exiting the app
+atexit.register(lambda: scheduler.shutdown())
+
 
 
 ## Allows you to run 'python app.py' instead of exporting FLASK_APP

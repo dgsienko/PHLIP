@@ -3,51 +3,26 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='alerts.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
-  <!--   <script src="../static/jquery-3.1.1.min.js"></script>
-	<script type="text/javascript" src="../static/alerts.js"></script> -->
-		<meta charset="UTF-8">
-		<title></title>
+		<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
+	    <script type="text/javascript" src="{{ url_for('static', filename='alerts.js') }}"></script>
+	    <script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
 		<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
 		<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
-		<!-- <link rel="stylesheet" href="../templated-interphase/css/style.css" />
-		<link rel="stylesheet" href="../templated-interphase/css/style-xlarge.css" /> -->
+		<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/navbar.css') }}" />
+		<meta charset="UTF-8">
+		<title>Alerts</title>
 	</head>
-	<style>
-	ul {
-		list-style-type: none;
-		margin: 0;
-		padding: 0;
-		overflow: hidden;
-		background-color: #333;
-	}
 
-	li {
-		float: left;
-	}
-
-	li a {
-		display: block;
-		color: white;
-		text-align: center;
-		padding: 14px 16px;
-		text-decoration: none;
-	}
-
-	/* Change the link color to #111 (black) on hover */
-	li a:hover {
-		background-color: #111;
-	}
-	</style>
-	<ul>
-		<li><a href="/home">Home</a></li>
-		<li><a href="/addrules">Alerts</a></li>
-		<li><a href="/music">Music</a></li>
-		<li><a href="/setup">Setup</a></li>
-	</ul>
+	
 	<body>
+
+		<ul id="topbar">
+			<li><a href="/home">Home</a></li>
+			<li class='selected'><a href="/addrules">Alerts</a></li>
+			<li><a href="/music">Music</a></li>
+			<li><a href="/setup">Setup</a></li>
+		</ul>
+
 		<form action="/addrules" method="POST">
 		<div class="leftinfoA">
 			<h1> Weather Alerts </h1>

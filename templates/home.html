@@ -1,124 +1,102 @@
 <html>
-<head>
-<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
-<!-- <script src="../static/jquery-3.1.1.min.js"></script>
-<script type="text/javascript" src="../static/alerts.js"></script> -->
-</head>
-<!-- <link rel="stylesheet" href="../templated-interphase/css/style.css" />
-<link rel="stylesheet" href="../templated-interphase/css/style-xlarge.css" />
-<link rel="stylesheet" href="../templated-interphase/css/stylelight.css" /> -->
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
-    <!-- <link rel="stylesheet" href="../templated-interphase/css/style.css" />
-    <link rel="stylesheet" href="../templated-interphase/css/style-xlarge.css" /> -->
-  <style>
-  ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #333;
-  }
+  <head>
+    <script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/navbar.css') }}" />
+    <meta charset="UTF-8">
+    <title>Home</title>
 
-  li {
-    float: left;
-  }
+  </head>
 
-  li a {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-  }
 
-  /* Change the link color to #111 (black) on hover */
-  li a:hover {
-    background-color: #111;
-  }
-  </style>
-  <ul>
-    <li><a href="/home">Home</a></li>
-    <li><a href="/addrules">Alerts</a></li>
-    <li><a href="/music">Music</a></li>
-    <li><a href="/setup">Setup</a></li>
-  </ul>
-  <body>
-  {% if message %}
-  <h3 class='message'> {{message}} </h3>
-  {% endif %}
+
   
-    <div class='leftinfoH'>
-      <div id="boxh1">
-      <a href='/music'>Go to Music Vis</a>
-      </div>
-      <p></p>
-      <div id="boxh2">
-      <h3>Control Panel</h3>
-      <div>
-        <form method='POST' action='/lights'>
-          <input type="text" id='color' name="color">
-          <input type='submit' name='Custom Color'>
-        </form>
-        <form method='POST' action='/lights'>
-          <input type="hidden" value ='blue' id='color' name="color">
-          <input type='submit' value='Blue'>
-        </form>
-        <form method='POST' action='/lights'>
-          <input type="hidden" value ='red' id='color' name="color">
-          <input type='submit' value='Red'>
-        </form>
-        <form method='POST' action='/lights'>
-          <input type="hidden" value ='white' id='color' name="color">
-          <input type='submit' value='White'>
-        </form>
+  <body>
+    <ul id="topbar">
+      <li class='selected'><a href="/home">Home</a></li>
+      <li><a href="/addrules">Alerts</a></li>
+      <li><a href="/music">Music</a></li>
+      <li><a href="/setup">Setup</a></li>
+    </ul>
 
-      </div>
-      </div>
-    </div>
+    {% if message %}
+    <h3 class='message'> {{message}} </h3>
+    {% endif %}
+    
+      <div class='leftinfoH'>
+        <div id="boxh1">
+        <a href='/music'>Go to Music Vis</a>
+        </div>
+        <p></p>
+        <div id="boxh2">
+        <h3>Control Panel</h3>
+        <div>
+          <form method='POST' action='/lights'>
+            <input type="text" id='color' name="color">
+            <input type='submit' name='Custom Color'>
+          </form>
+          <form method='POST' action='/lights'>
+            <input type="hidden" value ='blue' id='color' name="color">
+            <input type='submit' value='Blue'>
+          </form>
+          <form method='POST' action='/lights'>
+            <input type="hidden" value ='red' id='color' name="color">
+            <input type='submit' value='Red'>
+          </form>
+          <form method='POST' action='/lights'>
+            <input type="hidden" value ='white' id='color' name="color">
+            <input type='submit' value='White'>
+          </form>
 
-    <div class="rightinfoH">
-      {% if alerts %}
-        Current Rules:  
-        <table border='1'>
-          <th> User </th>
-          <th> Alert Type </th>
-          <th> Temp (F)</th>
-          <th> Lighting Effect </th>
-          <th> Lighting Color </th>
-          <th> Light Length </th>
-          {% for alert in alerts %} 
-          {#alert=[email,alert type, +/- 1, temp, effect, color, length] #}
-            <tr>
-              <td> {{alert[0]}} </td>
-              {% if alert[1] == 'temp' %}
-                {% if alert[2] == 1 %}
-                  <td> Above Temp </td>
+        </div>
+        </div>
+        <a href='/logout'>Logout</a>
+      </div>
+
+      <div class="rightinfoH">
+        {% if alerts %}
+          Current Rules:  
+          <table border='1'>
+            <th> User </th>
+            <th> Alert Type </th>
+            <th> Temp (F)</th>
+            <th> Lighting Effect </th>
+            <th> Lighting Color </th>
+            <th> Light Length </th>
+            {% for alert in alerts %} 
+            {#alert=[email,alert type, +/- 1, temp, effect, color, length] #}
+              <tr>
+                <td> {{alert[0]}} </td>
+                {% if alert[1] == 'temp' %}
+                  {% if alert[2] == 1 %}
+                    <td> Above Temp </td>
+                  {% else %}
+                    <td> Below Temp </td>
+                  {% endif %}
+                  <td> {{alert[3]}} </td>
                 {% else %}
-                  <td> Below Temp </td>
+                  {% if alert[2] == 1 %}
+                    <td> Sunrise </td>
+                  {% else %}
+                    <td> Sunset </td>
+                  {% endif %}
+                  <td> -- </td>
                 {% endif %}
-                <td> {{alert[3]}} </td>
-              {% else %}
-                {% if alert[2] == 1 %}
-                  <td> Sunrise </td>
-                {% else %}
-                  <td> Sunset </td>
-                {% endif %}
-                <td> -- </td>
-              {% endif %}
-              <td> {{alert[4]}} </td>
-              <td> {{alert[5]}} </td>
-              <td> {{alert[6]}} </td>
-            </tr>
-          {% endfor %}
+                <td> {{alert[4]}} </td>
+                <td> {{alert[5]}} </td>
+                <td> {{alert[6]}} </td>
+              </tr>
+            {% endfor %}
 
-        </table>
-      {% else %}
-        You currently have no rules.
-      {% endif %}
+          </table>
+        {% else %}
+          You currently have no rules.
+        {% endif %}
 
-    </div>
+      </div>
+      
  </body>
 </html>

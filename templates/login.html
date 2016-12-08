@@ -1,34 +1,35 @@
 <html>
-<head>
-<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
-<!-- <script src="../static/jquery-3.1.1.min.js"></script>
-<script type="text/javascript" src="../static/alerts.js"></script> -->
-</head>
+  <head>
+    <script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
+    <meta charset="UTF-8">
+    <title>Login</title>
+  </head>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
+
 
   <body>
-  {% if message %}
-  <h3 class='message'> {{message}} </h3>
-  {% endif %}
-  <div class="title">
-            <h1>Enter your login information below</h1>
-  </div>
-  <div id='login'>
-        <form method="post" action="/login">
-            <label for="email">Email:</label>
-            <input type="text" name="email" /><br />
-            <label for="password">Password:</label>
-            <input type="password" name="password" /><br />
-            <input type="submit" />
-        </form>
-  </div>
+      {% if message %}
+      <h3 class='message'> {{message}} </h3>
+      {% endif %}
+      <div class="title">
+                <h1>Enter your login information below</h1>
+      </div>
+      <div id='login'>
+            <form method="post" action="/login">
+                <label for="email">Email:</label>
+                <input type="text" name="email" /><br />
+                <label for="password">Password:</label>
+                <input type="password" name="password" /><br />
+                <input type="submit" />
+            </form>
+      </div>
 
 
-<a href='/register'>register</a><br>
+    <a href='/register'>register</a><br>
 
   </body>
 </html>

@@ -1,16 +1,16 @@
 <!-- Code modified by Karan Varindani (karan301@bu.edu) -->
 
 <head>
-    <title>Create an account!</title>
-    <!-- <script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script> -->
     <script src="../static/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../static/alerts.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
+    <meta charset="UTF-8">
+    <title>Register</title>
 </head>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
+
     <body>
     {% if message %}
     <h3 class='message'> {{message}} </h3>

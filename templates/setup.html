@@ -1,80 +1,57 @@
-<head>
-	<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
-	<script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script> 
-	<!-- <script src="../static/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="../static/alerts.js"></script> -->
+<html>
+	<head>
+		<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script> 
+		<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/navbar.css') }}" />
+		<meta charset="UTF-8">
+		<title>Setup</title>
+	</head>
 
-</head>
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
-<style>
-ul {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-	background-color: #333;
-}
-
-li {
-	float: left;
-}
-
-li a {
-	display: block;
-	color: white;
-	text-align: center;
-	padding: 14px 16px;
-	text-decoration: none;
-}
-
-/* Change the link color to #111 (black) on hover */
-li a:hover {
-	background-color: #111;
-}
-</style>
-<ul>
-	<li><a href="/home">Home</a></li>
-	<li><a href="/addrules">Alerts</a></li>
-	<li><a href="/music">Music</a></li>
-	<li><a href="/setup">Setup</a></li>
-</ul>
-<body>
-<div id ="setup">
-	{% if message %}
-	<h3 class='message'> {{message}} </h3>
-	{% endif %}
+		<ul id="topbar">
+			<li><a href="/home">Home</a></li>
+			<li><a href="/addrules">Alerts</a></li>
+			<li><a href="/music">Music</a></li>
+			<li class='selected'><a href="/setup">Setup</a></li>
+		</ul>
+		<body>
+		<div id ="setup">
+			{% if message %}
+			<h3 class='message'> {{message}} </h3>
+			{% endif %}
 
 
-	{% if settings %}
-	<form method='POST' action='/setup'>
-	<label for='update_speed'>Weather API query speed (minutes)</label>
-	<input name='update_speed' type='text' value='{{settings[0]}}'><br>
-	<label for='weather_key'>Allow new users to register</label>
-	{% if settings[1] != 1 %}
-	<input name='new_users' type='checkbox'><br>
-	{% else %}
-	<input name='new_users' type='checkbox' checked='checked'><br>
-	{% endif %}
-	<label for='weather_key'>Wunderground API Key</label>
-	<input name='weather_key' type='text' value='{{settings[2]}}'><br>
-	<label for='music_key'>Jamendo API Key</label>
-	<input name='music_key' type='text' value='{{settings[3]}}'><br>
-	<label for='city'>City</label>
-	<input name='city' type='text' value='{{settings[4]}}'><br>
-	<label for='state'>State</label>
-	<input name='state' type='text' value='{{settings[5]}}'><br>
-	<input type='submit' value='Save Settings'>
-	</form>
+			{% if settings %}
+			<form method='POST' action='/setup'>
+			<label for='update_speed'>Weather API query speed (minutes)</label>
+			<input name='update_speed' type='text' value='{{settings[0]}}'><br>
+			<label for='weather_key'>Allow new users to register</label>
+			{% if settings[1] != 1 %}
+			<input name='new_users' type='checkbox'><br>
+			{% else %}
+			<input name='new_users' type='checkbox' checked='checked'><br>
+			{% endif %}
+			<label for='weather_key'>Wunderground API Key</label>
+			<input name='weather_key' type='text' value='{{settings[2]}}'><br>
+			<label for='music_key'>Jamendo API Key</label>
+			<input name='music_key' type='text' value='{{settings[3]}}'><br>
+			<label for='city'>City</label>
+			<input name='city' type='text' value='{{settings[4]}}'><br>
+			<label for='state'>State</label>
+			<input name='state' type='text' value='{{settings[5]}}'><br>
+			<input type='submit' value='Save Settings'>
+			</form>
 
-	{% else %}
-		<div> no settings passed in from the backend! </div>
-	{% endif %}
-	
-	<a href='/logout'>logout</a><br>
-	<a href='/home'>home</a><br>
+			{% else %}
+				<div> no settings passed in from the backend! </div>
+			{% endif %}
+			
+			<a href='/logout'>logout</a><br>
+			<a href='/home'>home</a><br>
 
 
-</div>
-</body>
+		</div>
+	</body>
+</html>
