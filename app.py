@@ -118,10 +118,11 @@ def request_loader(request):
 	user = User()
 	user.id = email
 	cursor = mysql.connect().cursor()
-	cursor.execute("SELECT password FROM user WHERE email = '{0}'".format(email))
+	cursor.execute("SELECT password FROM users WHERE email = '{0}'".format(email))
 	data = cursor.fetchall()
 	pwd = str(data[0][0] )
-	user.is_authenticated = request.form['password'] == pwd 
+	print(pwd,validate_str(request.form['p']))
+	user.is_authenticated = (validate_str(request.form['p']) == pwd)
 	return user
 ###
 
@@ -550,6 +551,8 @@ def validate_str(string):
 		val = str(string)
 		val = val.replace('<','')
 		val = val.replace('>', '')
+		val = val.replace('"', '')
+		val = val.replace('\'', '')
 		return val
 	except:
 		return ''
@@ -587,12 +590,11 @@ def login_post():
 		data = cursor.fetchall()
 		print (data)
 		pwd = str(data[0][0] )
-		if validate_str(flask.request.form['password']) == pwd:
+		if validate_str(flask.request.form['p']) == pwd:
 			user = User()
 			user.id = email
 			flask_login.login_user(user) ## Okay - login in user
-			return flask.render_template('home.html', message="Login successful", alerts=get_display_alerts() ) ## Protected is a function defined in this file
-
+			return redirect('/home')
 	## Information did not match
 	return "<a href='/login'>Try again</a>\
 	</br><a href='/register'>or make an account</a>"
@@ -849,7 +851,8 @@ def register_user():
 			'''
 	try:
 		email=validate_str(request.form.get('email'))
-		password=validate_str(request.form.get('password'))
+		password=validate_str(request.form.get('p'))
+		print(password)
 	except:
 		print("couldn't find all tokens") # End users won't see this (print statements go to shell)
 		return render_template('register.html')
@@ -880,16 +883,16 @@ def unauthorized_handler():
 # def print_date_time():
 #     print(time.strftime("%A, %d. %B %Y %I:%M:%S %p"))
 
-scheduler = BackgroundScheduler()
-scheduler.start()
-scheduler.add_job(
-    func=run_alerts,
-    trigger=IntervalTrigger(seconds=get_setting('update_speed')),
-    id='printing_job',
-    name='Print date and time every five seconds',
-    replace_existing=True)
-# Shut down the scheduler when exiting the app
-atexit.register(lambda: scheduler.shutdown())
+# scheduler = BackgroundScheduler()
+# scheduler.start()
+# scheduler.add_job(
+#     func=run_alerts,
+#     trigger=IntervalTrigger(seconds=get_setting('update_speed')),
+#     id='printing_job',
+#     name='Print date and time every five seconds',
+#     replace_existing=True)
+# # Shut down the scheduler when exiting the app
+# atexit.register(lambda: scheduler.shutdown())
 
 
 

@@ -1,6 +1,8 @@
 <html>
   <head>
     <script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='sha512.js') }}"></script>
+    <script src="{{ url_for('static', filename='forms.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='autohide.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
@@ -22,9 +24,11 @@
             <form method="post" action="/login">
                 <label for="email">Email:</label>
                 <input type="text" name="email" /><br />
-                <label for="password">Password:</label>
-                <input type="password" name="password" /><br />
-                <input type="submit" />
+                <label for="password">Enter password:</label>
+                <input type="password" id='password' name="password" /><br />
+                <input type="button" 
+                       value="Login" 
+                       onclick="formhash(this.form, this.form.password);" />
             </form>
       </div>
 

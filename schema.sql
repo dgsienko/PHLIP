@@ -68,7 +68,7 @@ create table locations (
 create table users(
 	user_id int(5) primary key auto_increment not null,
 	email varchar(50) not null,
-	password varchar(50) not null,
+	password varchar(1000) not null,
 	unique(email)
 );
 

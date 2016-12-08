@@ -1,8 +1,9 @@
 <!-- Code modified by Karan Varindani (karan301@bu.edu) -->
 
 <head>
-    <script src="../static/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="../static/alerts.js"></script>
+    <script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }} "></script>
+    <script src="{{ url_for('static', filename='forms.js') }} "></script>
+    <script src="{{ url_for('static', filename='sha512.js') }} "></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/style-xlarge.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='templated-interphase/css/stylelight.css') }}" />
@@ -23,8 +24,16 @@
                 <label for="email">Enter your email:</label>
                 <input type="text" name="email" /><br />
                 <label for="password">Enter password:</label>
-                <input type="password" name="password" /><br />
-                <input type="submit" />
+                <input type="password" id='password' name="password" /><br />
+                <label for="confirmpwd">Enter password:</label>
+                <input type="password" id='confirmpwd' name="confirmpwd" /><br />
+                <input type="button" 
+                       value="Register" 
+                       onclick="return regformhash(
+                                        this.form,
+                                        this.form.email,
+                                        this.form.password,
+                                        this.form.confirmpwd);" />
             </form>
          </div>
 
