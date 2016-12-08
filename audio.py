@@ -136,5 +136,5 @@ def mainRun(fname,threshold):
 	songProcess.start()  
 	lights.setColor_v2(plan_sec,color_ready,song_ready)
 	
-if __name__ == "__main__":
-	mainRun(sys.argv[1],95)
+# if __name__ == "__main__":
+# 	mainRun(sys.argv[1],95)

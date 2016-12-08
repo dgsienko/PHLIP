@@ -28,7 +28,11 @@
 			<li> <form method='POST' action='/playmusic'> <input type='hidden' name='artist' value='{{artist}}'> <input type='hidden' name='song_name' value='{{song}}'> <input type='submit' value='{{song}}'> </form> </li>
 			{% endfor %}
 			</ul>
+
+		{% else %}
+			<div> No artist found! </div>
 		{% endif %}
+		<h1><a href='/music'>Go Back</a></h1>
 
 		<a href='/logout'>logout</a><br>
 		<a href='/home'>home</a><br>
