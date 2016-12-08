@@ -841,6 +841,7 @@ def register():
 	else:
 		return '''
 			<h2 class='error'> You are no longer allowed to register for this site. </h2>
+			<a href='/'>Back</a>
 			'''
 
 @app.route("/register", methods=['POST'])
@@ -848,6 +849,7 @@ def register_user():
 	if(not(allow_new_users())):
 		return '''
 			<h2 class='error'> You are no longer allowed to register for this site. </h2>
+			<a href='/'>Back</a>
 			'''
 	try:
 		email=validate_str(request.form.get('email'))
